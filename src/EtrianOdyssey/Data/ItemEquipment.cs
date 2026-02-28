@@ -1,0 +1,92 @@
+﻿namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
+{
+    public enum EquipmentType : byte
+    {
+        Unknown = 0x00,
+        Sword = 0x01,
+        Staff = 0x02,
+        Axe = 0x03,
+        Katana = 0x04,
+        Bow = 0x05,
+        Whip = 0x06,
+        Armor = 0x08,
+        Shield = 0x09,
+        Headgear = 0x0A,
+        Gloves = 0x0B,
+        Boots = 0x0C,
+        Accessory = 0x0D
+    }
+
+    public enum DamageType : byte
+    {
+        Slash = 00,
+        Bash = 01,
+        Pierce = 02,
+        Fire = 03,
+        Ice = 04,
+        Volt = 05,
+        None = 06
+    }
+
+    public class ItemEquipment
+    {
+        public ItemEquipment(byte[] data, EtrianString[] nameTable)
+        {
+            item_id = BitConverter.ToUInt16(data, 0);
+            name = nameTable[item_id - 1];
+
+            equipment_type = data[0x0A];
+
+            damage_type = data[02];
+            secondary_damage_type = data[03];
+            attack_1 = BitConverter.ToUInt16(data, 04);
+            defense = BitConverter.ToUInt16(data, 08);
+
+        }
+
+        public override string ToString()
+        {
+            return name.StringValue;
+        }
+
+        public EquipmentType EquipmentType => (EquipmentType)equipment_type;
+        public DamageType DamageType => (DamageType)damage_type;
+        public DamageType SecondaryDamageType => (DamageType)secondary_damage_type;
+
+        public ushort item_id; // 00-01
+        public EtrianString name;
+        public byte damage_type; // 02
+        public byte secondary_damage_type; // 03
+        public ushort attack_1; // 04-05
+        public ushort attack_2; // 06-07
+        public ushort defense; // 08-09
+        public byte equipment_type; // 0A
+        public byte weapon_speed_modifier; // Unsure. 0B
+        public byte slash_reduction;
+        public byte blunt_reduction;
+        public byte pierce_reduction;
+        public byte fire_reduction;
+        public byte ice_reduction;
+        public byte volt_reduction;
+        public byte death_reduction;
+        public byte ailment_reduction;
+        public byte head_bind_reduction;
+        public byte arm_bind_reduction;
+        public byte leg_bind_reduction;
+        public byte bonus_str;
+        public byte bonus_vit;
+        public byte bonus_agi;
+        public byte bonus_luc;
+        public byte bonus_tec;
+        public byte bonus_hp;
+        public byte bonus_tp;
+        public byte bonus_bp;
+        public byte unknown_1f; // always 0x00.
+        public uint buy_price;
+        public uint sell_price;
+        public byte usable_by;
+        public byte usable_by_2_and_unknown;
+        public byte unknown_2A;
+        public byte unknown_2B;
+    }
+}
