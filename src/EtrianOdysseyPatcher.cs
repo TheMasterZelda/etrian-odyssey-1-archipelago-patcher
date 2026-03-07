@@ -4,14 +4,9 @@ using etrian_odyssey_ap_patcher.EtrianOdyssey.MapData;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
 using etrian_odyssey_ap_patcher.NitroRom;
 using etrian_odyssey_ap_patcher.Util;
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace etrian_odyssey_ap_patcher
 {
@@ -55,6 +50,11 @@ namespace etrian_odyssey_ap_patcher
         public void ApplyAPGameTitle()
         {
             rom.header.GameTitle = "EO1AP V1";
+        }
+
+        public void ReplaceArm9(byte[] arm9)
+        {
+            rom.arm9 = arm9;
         }
 
         public void ApplyCodePatch()
@@ -117,6 +117,8 @@ namespace etrian_odyssey_ap_patcher
                                         tile.treasureItemID = (ushort)treasure_data.treasure_value;
                                         break;
                                     case TreasureType.AP:
+                                    case TreasureType.Floor:
+                                    case TreasureType.Level:
                                         // TODO.
                                         break;
                                     default:
@@ -170,6 +172,41 @@ namespace etrian_odyssey_ap_patcher
 
             // Add the new menu info.
             shopMessages.Messages[102].Update("Receive pending AP items.");
+        }
+
+        public void ApplyTreasureBoxTextPatch()
+        {
+            MessageTable dungeonMessage = (MessageTable)files.DungeonMess.Tables[0];
+
+
+            dungeonMessage.Messages[457].Update("Found an item from another\r\ndimension.");
+            dungeonMessage.Messages[458].Update("Found an item for this\r\n dimension");
+
+            // For now, don't implement specific messages for each special item types.
+            //dungeonMessage.Messages[458].Update("The labyrinth rumbles...\r\n<!806A> floors available!");
+            //dungeonMessage.Messages[459].Update("You feel a surge of energy...\r\n<!806A> level cap!");
+            //dungeonMessage.Messages[460].Update("You feel a surge of energy...\r\n<!806A> level cap!");
+            //"Obtained\r\n<!806A>        en."
+            // Add the new menu info.
+            //shopMessages.Messages[102].Update("Receive pending AP items.");
+        }
+
+        public void ApplyRestCostReductionPatch()
+        {
+            // Patch the level cost.
+            PatchRom9Value(0x38ee8, (byte)1);
+
+            // Patch the minimum level to rest.
+            PatchRom9Value(0x38ce8, (byte)5);
+            PatchRom9Value(0xb6824, (byte)5);
+            PatchRom9Value(0xb7534, (byte)5);
+            PatchRom9Value(0xb6c88, (byte)5);
+            PatchRom9Value(0xb5e94, (byte)5);
+
+            MessageTable messages = (MessageTable)files.FacilityText.Tables[4];
+
+            messages.Messages[114].Update("Reset skill points in exchange\r\nfor losing 1 level.");
+            messages.Messages[215].Update("<!8064>       's level has decreased\r\nby 1 while resting.");
         }
 
         public byte[] SavePatchedRom()

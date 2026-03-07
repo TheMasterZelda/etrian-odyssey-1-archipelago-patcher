@@ -76,7 +76,7 @@ namespace etrian_odyssey_ap_patcher
                 foreach (ItemEquipment item in equipmentTypeGrouping)
                 {
                     string constantName = FormatToConstant(item.name.StringValue);
-                    
+
                     stringBuilder.AppendLine($"    EO1EquipmentData(EO1ItemType.Equipment, 0x{item.item_id.ToString("X3")}, EO1EquipmentNames.{constantName}, {id++}, EO1EquipmentType.{item.EquipmentType.ToString()}), # DmgType: {item.DamageType}, Secondary DmgType: {item.SecondaryDamageType}, ATK: {item.attack_1}, DEF: {item.defense}");
                 }
                 stringBuilder.AppendLine("]");
@@ -308,6 +308,23 @@ namespace etrian_odyssey_ap_patcher
             File.WriteAllText("D:\\Projects\\EtrianOdyssey\\DataDump\\item_tbb_1.txt", stringBuilder.ToString());
         }
 
+        public void ItemCompound()
+        {
+            var messages = ((MessageTable)files.ItemName.Tables[0]).Messages;
+
+            List<ItemCompound> itemCompounds = new List<ItemCompound>();
+
+            foreach (var entry in ((DataTable)files.ItemCompound.Tables[0]).Data)
+            {
+                var itm = new ItemCompound(entry, messages);
+
+                if (itm.name.RawData.Length == 1 && itm.name.RawData[0] == 0)
+                    continue;
+
+                itemCompounds.Add(itm);
+            }
+        }
+
         public void ChestData()
         {
             Dictionary<int, List<TreasureChestTile>> chestsByFloors = new Dictionary<int, List<TreasureChestTile>>();
@@ -339,6 +356,8 @@ namespace etrian_odyssey_ap_patcher
                             contentStr = $"0x{chest.treasureItemID.ToString("X4")} - {itemNames.Messages[chest.treasureItemID - 1]}";
                             break;
                         case TreasureType.AP:
+                        case TreasureType.Floor:
+                        case TreasureType.Level:
                         default:
                             break;
                     }
@@ -495,7 +514,7 @@ namespace etrian_odyssey_ap_patcher
             stringBuilder.AppendLine("class EO1Enemies:");
 
             foreach (EnemyData enemy in enemies.Values)
-            { 
+            {
                 // Skip dummies.
                 if (enemy.codex_id == 0)
                     continue;

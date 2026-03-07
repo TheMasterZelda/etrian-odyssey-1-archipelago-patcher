@@ -60,7 +60,9 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
                 CompressionType compressionType;
                 data = CompressionHelper.DetectCompressionTypeAndDecompressIfRequired(data, out compressionType);
 
-                DataStream.Seek(BlockLengths[i], SeekOrigin.Current);
+                DataStream.Seek(offset + BlockLengths[i], SeekOrigin.Begin);
+
+                offset += BlockLengths[i];
 
                 Blocks[i] = CreateFileBlock(data, compressionType);
             }

@@ -1,4 +1,6 @@
-﻿using etrian_odyssey_ap_patcher.EtrianOdyssey.Files;
+﻿using etrian_odyssey_ap_patcher.EtrianOdyssey;
+using etrian_odyssey_ap_patcher.EtrianOdyssey.Files;
+using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
 using etrian_odyssey_ap_patcher.NitroRom;
 
 namespace etrian_odyssey_ap_patcher
@@ -13,7 +15,9 @@ namespace etrian_odyssey_ap_patcher
             public T base_file;
         }
 
+        private const string DATA_DUNGEON = "/Data/Dungeon/";
         private const string DATA_PARAM = "/Data/Param/";
+        private const string DATA_EVENT = "/Data/Event/";
         private Rom rom;
 
         private readonly RomFile<TableFile> facility_text;
@@ -23,10 +27,13 @@ namespace etrian_odyssey_ap_patcher
         private readonly RomFile<TableFile> item_info;
         private readonly RomFile<TableFile> item_name;
         private readonly RomFile<TableFile> item_ill_info;
+        private readonly RomFile<TableFile> item_compound;
 
         private readonly RomFile<TableFile> encount_data;
         private readonly RomFile<TableFile> enemy_data;
         private readonly RomFile<TableFile> enemy_name;
+
+        private readonly RomFile<TableFile> dungeon_mess;
 
         private readonly RomFile<TableFile> government_mission_data;
         private readonly RomFile<TableFile> government_mission_name;
@@ -52,7 +59,9 @@ namespace etrian_odyssey_ap_patcher
             item_info = LoadTableFile(DATA_PARAM + "ItemInfo.cmp");
             item_name = LoadTableFile(DATA_PARAM + "ItemName.cmp");
             item_ill_info = LoadTableFile(DATA_PARAM + "itemIllInfo.cmp");
+            item_compound = LoadTableFile(DATA_PARAM + "ItemCompound.tbb");
             facility_text = LoadTableFile(DATA_PARAM + "FacilityText.cmp");
+            dungeon_mess = LoadTableFile(DATA_DUNGEON + "DungeonMess.mbb");
 
             encount_data = LoadTableFile(DATA_PARAM + "EncountData.tbb");
             enemy_data = LoadTableFile(DATA_PARAM + "EnemyData.tbb");
@@ -88,6 +97,7 @@ namespace etrian_odyssey_ap_patcher
         public void UpdateFiles()
         {
             UpdateFile(facility_text);
+            UpdateFile(dungeon_mess);
 
             foreach (RomFile<MapDataFile> file in map_data_files)
             {
@@ -105,6 +115,13 @@ namespace etrian_odyssey_ap_patcher
             FileEntry entry = GetFile(filename);
             TableFile file = new TableFile(entry.file_content);
             return new RomFile<TableFile>(entry, file);
+        }
+
+        private RomFile<ArchiveFile> LoadArchiveFile(string filename)
+        {
+            FileEntry entry = GetFile(filename);
+            ArchiveFile file = new ArchiveFile(entry.file_content);
+            return new RomFile<ArchiveFile>(entry, file);
         }
 
         private RomFile<MapDataFile> LoadMapDataFile(string filename)
@@ -133,7 +150,9 @@ namespace etrian_odyssey_ap_patcher
         public TableFile ItemInfo => item_info.base_file;
         public TableFile ItemName => item_name.base_file;
         public TableFile ItemIllInfo => item_ill_info.base_file;
+        public TableFile ItemCompound => item_compound.base_file;
         public TableFile FacilityText => facility_text.base_file;
+        public TableFile DungeonMess => dungeon_mess.base_file;
 
         public TableFile PlayerSkill => player_skill.base_file;
         public TableFile PlayerSkillName => player_skill_name.base_file;

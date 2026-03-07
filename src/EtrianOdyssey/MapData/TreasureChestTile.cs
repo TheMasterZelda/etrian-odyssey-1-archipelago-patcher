@@ -7,6 +7,9 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.MapData
         Money = 0x2,
         Item = 0x3,
         AP = 0x4,
+        Floor = 0x5,
+        Level = 0x6,
+
     };
 
     public enum TreasureItemCategory : byte
@@ -66,6 +69,8 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.MapData
                     ByteUtil.Write(TileData, 12, treasureItemID);
                     break;
                 case TreasureType.AP:
+                case TreasureType.Floor:
+                case TreasureType.Level:
                     break;
             }
         }

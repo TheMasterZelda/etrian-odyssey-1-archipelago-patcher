@@ -21,6 +21,22 @@ internal class Program
         BinaryPatch.Apply(oldFile, () => File.OpenRead("patchFile"), newFile);
     }
 
+    private static void DebugPatch()
+    {
+        EtrianOdysseyPatcher patcher = new EtrianOdysseyPatcher(@"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds");
+
+        patcher.ReplaceArm9(File.ReadAllBytes(@"D:\Projects\EtrianOdyssey\Git\etrian-odyssey-1-archipelago-patch\arm9.bin"));
+        patcher.ApplyShopTextPatch();
+        patcher.ApplyTreasureBoxTextPatch();
+        // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
+        patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_22080746147398243852\AP_22080746147398243852_P1_TMZ.apeo1", FileMode.Open));
+        patcher.ApplyAPGameTitle();
+        patcher.ApplyRestCostReductionPatch();
+
+        // "D:\\Code\\TestRepack.nds"
+        File.WriteAllBytes("D:\\Code\\TestRepack.nds", patcher.SavePatchedRom());
+    }
+
     private static void ExecuteExtractor()
     {
         EtrianOdysseyDataExtractor extractor = new EtrianOdysseyDataExtractor(@"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds");
@@ -33,6 +49,7 @@ internal class Program
         extractor.EncounterGroups();
         extractor.PlayerSkillData();
         extractor.Class2Skill();
+        extractor.ItemCompound();
     }
 
     private static void ExecutePatcher()
@@ -87,6 +104,8 @@ internal class Program
 
         patcher.ApplyCodePatch();
         patcher.ApplyShopTextPatch();
+        patcher.ApplyTreasureBoxTextPatch();
+        patcher.ApplyRestCostReductionPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
         patcher.ApplyAPPatch(new FileStream(openAPPatch.FileName, FileMode.Open));
         patcher.ApplyAPGameTitle();
@@ -100,6 +119,8 @@ internal class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        //DebugPatch();
+
         //ExecuteExtractor();
 
         //CreatePatch("D:\\Code\\arm9.bin", "D:\\Code\\patched_arm9.bin", "D:\\Code\\patch.bsdiff");
