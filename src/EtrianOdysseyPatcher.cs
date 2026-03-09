@@ -119,6 +119,8 @@ namespace etrian_odyssey_ap_patcher
                                     case TreasureType.AP:
                                     case TreasureType.Floor:
                                     case TreasureType.Level:
+                                    case TreasureType.Class:
+                                    case TreasureType.Other:
                                         // TODO.
                                         break;
                                     default:

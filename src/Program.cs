@@ -99,21 +99,31 @@ internal class Program
             return;
         }
 
-        // @"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds")
-        EtrianOdysseyPatcher patcher = new EtrianOdysseyPatcher(openSourceRom.FileName);
+        try
+        {
+            // @"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds")
+            EtrianOdysseyPatcher patcher = new EtrianOdysseyPatcher(openSourceRom.FileName);
 
-        patcher.ApplyCodePatch();
-        patcher.ApplyShopTextPatch();
-        patcher.ApplyTreasureBoxTextPatch();
-        patcher.ApplyRestCostReductionPatch();
-        // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
-        patcher.ApplyAPPatch(new FileStream(openAPPatch.FileName, FileMode.Open));
-        patcher.ApplyAPGameTitle();
+            patcher.ApplyCodePatch();
+            patcher.ApplyShopTextPatch();
+            patcher.ApplyTreasureBoxTextPatch();
+            patcher.ApplyRestCostReductionPatch();
+            // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
+            patcher.ApplyAPPatch(new FileStream(openAPPatch.FileName, FileMode.Open));
+            patcher.ApplyAPGameTitle();
 
-        // "D:\\Code\\TestRepack.nds"
-        File.WriteAllBytes(saveOutputRom.FileName, patcher.SavePatchedRom());
+            // "D:\\Code\\TestRepack.nds"
+            File.WriteAllBytes(saveOutputRom.FileName, patcher.SavePatchedRom());
 
-        Console.WriteLine("Done patching. Have fun!");
+            Console.WriteLine("Done patching. Have fun!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An exception occured:");
+            Console.WriteLine(ex);
+            Console.ReadKey();
+            throw;
+        }
     }
 
     [STAThread]
@@ -123,7 +133,7 @@ internal class Program
 
         //ExecuteExtractor();
 
-        //CreatePatch("D:\\Code\\arm9.bin", "D:\\Code\\patched_arm9.bin", "D:\\Code\\patch.bsdiff");
+        //CreatePatch("D:\\Code\\original_arm9.bin", "D:\\Code\\patched_arm9.bin", "D:\\Code\\patch.bsdiff");
 
         ExecutePatcher();
 

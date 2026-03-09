@@ -9,7 +9,8 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.MapData
         AP = 0x4,
         Floor = 0x5,
         Level = 0x6,
-
+        Class = 0x7,
+        Other = 0x8,
     };
 
     public enum TreasureItemCategory : byte
@@ -71,6 +72,8 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.MapData
                 case TreasureType.AP:
                 case TreasureType.Floor:
                 case TreasureType.Level:
+                case TreasureType.Class:
+                case TreasureType.Other:
                     break;
             }
         }
