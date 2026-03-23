@@ -22,6 +22,8 @@ Note that this feature was made by me for me, and so has a few things hardcoded 
 In `Program.cs`.`Main()`, uncomment the `CreatePatch();` line and comment the `ExecutePatcher();` line.
 Set the parameter to the desired values. Once done, run the program.
 
+The project to generate the target binary is https://github.com/TheMasterZelda/etrian-odyssey-1-archipelago-patch
+
 ## How to build
 
 Publish project, zip result.
