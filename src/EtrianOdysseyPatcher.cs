@@ -142,7 +142,7 @@ namespace etrian_odyssey_ap_patcher
 
             PatchRom9Value(0xDC5A0, initialValues.landsknecht_unlocked);
             PatchRom9Value(0xDC5A1, initialValues.survivalist_unlocked);
-            PatchRom9Value(0xDC5A2, initialValues.protected_unlocked);
+            PatchRom9Value(0xDC5A2, initialValues.protector_unlocked);
             PatchRom9Value(0xDC5A3, initialValues.dark_hunter_unlocked);
             PatchRom9Value(0xDC5A4, initialValues.medic_unlocked);
             PatchRom9Value(0xDC5A5, initialValues.alchemist_unlocked);
@@ -152,7 +152,7 @@ namespace etrian_odyssey_ap_patcher
 
             PatchRom9Value(0xDC5B0, initialValues.landsknecht_skills);
             PatchRom9Value(0xDC5B4, initialValues.survivalist_skills);
-            PatchRom9Value(0xDC5B8, initialValues.protected_skills);
+            PatchRom9Value(0xDC5B8, initialValues.protector_skills);
             PatchRom9Value(0xDC5BC, initialValues.dark_hunter_skills);
             PatchRom9Value(0xDC5C0, initialValues.medic_skills);
             PatchRom9Value(0xDC5C4, initialValues.alchemist_skills);

@@ -29,7 +29,7 @@ internal class Program
         patcher.ApplyShopTextPatch();
         patcher.ApplyTreasureBoxTextPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
-        patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_22080746147398243852\AP_22080746147398243852_P1_TMZ.apeo1", FileMode.Open));
+        //patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_22080746147398243852\AP_22080746147398243852_P1_TMZ.apeo1", FileMode.Open));
         patcher.ApplyAPGameTitle();
         patcher.ApplyRestCostReductionPatch();
 
@@ -39,17 +39,23 @@ internal class Program
 
     private static void ExecuteExtractor()
     {
-        EtrianOdysseyDataExtractor extractor = new EtrianOdysseyDataExtractor(@"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds");
+        EtrianOdysseyDataExtractor extractor = new EtrianOdysseyDataExtractor(@"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds", "D:\\Projects\\EtrianOdyssey\\DataDump\\");
         extractor.EnemyData();
+        extractor.CodexData();
         extractor.ChestData();
         extractor.GovernmentMissions();
         extractor.EquipmentData();
         extractor.ItemData();
+        extractor.MaterialData();
+        extractor.GatheringSpot();
         extractor.EncounterData();
         extractor.EncounterGroups();
         extractor.PlayerSkillData();
         extractor.Class2Skill();
         extractor.ItemCompound();
+        extractor.ClassLevelStats();
+
+        extractor.ParseEvents();
     }
 
     private static void ExecutePatcher()

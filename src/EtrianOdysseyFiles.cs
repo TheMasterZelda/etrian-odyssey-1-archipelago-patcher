@@ -23,6 +23,8 @@ namespace etrian_odyssey_ap_patcher
         private readonly RomFile<TableFile> facility_text;
         private readonly RomFile<MapDataFile>[] map_data_files;
 
+        private readonly RomFile<TableFile> level_up;
+
         private readonly RomFile<TableFile> item;
         private readonly RomFile<TableFile> item_info;
         private readonly RomFile<TableFile> item_name;
@@ -49,10 +51,50 @@ namespace etrian_odyssey_ap_patcher
 
         private readonly RomFile<TableFile> class_2_skill;
 
+        private readonly RomFile<TableFile> skill_item_cut_data;
+        private readonly RomFile<TableFile> skill_item_mining_data;
+        private readonly RomFile<TableFile> skill_item_pick_data;
+
         public EtrianOdysseyFiles(Rom rom)
         {
             this.rom = rom;
 
+
+            ////var event_dungeon_gimmic = LoadArchiveFile(DATA_EVENT + "EventDungeonGimmic.bin");
+
+            ////var event_index = LoadTableFile(DATA_PARAM + "EventIndex.tbb");
+            ////var event_message = LoadArchiveFile(DATA_EVENT + "EventMessage.bin");
+            //var event_message_dungeon_gimmic = LoadArchiveFile(DATA_EVENT + "EventMessageDungeonGimmic.bin");
+
+
+            //for (int f = 0; f < event_message_dungeon_gimmic.base_file.Blocks.Length; f++)
+            //{
+            //    BaseFile file = event_message_dungeon_gimmic.base_file.Blocks[f];
+            //    if (file is TableFile)
+            //    {
+            //        for (int r = 0; r < ((TableFile)file).Tables.Length; r++)
+            //        {
+            //            BaseTable table = ((TableFile)file).Tables[r];
+            //            if (table is MessageTable)
+            //            {
+            //                MessageTable mtable = ((MessageTable)table);
+
+            //                for (int i = 0; i < mtable.Messages.Length; i++)
+            //                {
+            //                   // EtrianString str = mtable.Messages[i];
+            //                   // if (str.StringValue.StartsWith("The distant howling of"))
+            //                   //     throw new NotImplementedException();
+
+            //                }
+
+            //            }
+            //        }
+            //    }
+            //}
+
+
+
+            level_up = LoadTableFile(DATA_PARAM + "LevelUp.tbb");
 
             encount_data = LoadTableFile(DATA_PARAM + "EncountData.tbb");
             item = LoadTableFile(DATA_PARAM + "Item.tbb");
@@ -81,6 +123,11 @@ namespace etrian_odyssey_ap_patcher
             battle_skill_info = LoadTableFile(DATA_PARAM + "BtlSkillInfo.mbb");
 
             class_2_skill = LoadTableFile(DATA_PARAM + "Class2Skill.tbb");
+
+            skill_item_cut_data = LoadTableFile(DATA_PARAM + "SkillItemCutData.tbb");
+            skill_item_mining_data = LoadTableFile(DATA_PARAM + "SkillItemMiningData.tbb");
+            skill_item_pick_data = LoadTableFile(DATA_PARAM + "SkillItemPickData.tbb");
+
 
             //var t = LoadTableFile(DATA_PARAM + "GovernmentMissionMess.cmp");
             //var tt = LoadTableFile(DATA_PARAM + "GovernmentMissionName.cmp");
@@ -131,7 +178,7 @@ namespace etrian_odyssey_ap_patcher
             return new RomFile<MapDataFile>(entry, file);
         }
 
-        private FileEntry GetFile(string filename)
+        public FileEntry GetFile(string filename)
         {
             return rom.files[filename];
         }
@@ -141,6 +188,7 @@ namespace etrian_odyssey_ap_patcher
             return map_data_files[floorNumber - 1].base_file;
         }
 
+        public TableFile LevelUp => level_up.base_file;
         public TableFile EncounterData => encount_data.base_file;
         public TableFile EnemyData => enemy_data.base_file;
         public TableFile EnemyName => enemy_name.base_file;
@@ -164,6 +212,11 @@ namespace etrian_odyssey_ap_patcher
         public TableFile BattleSkillInfo => battle_skill_info.base_file;
 
         public TableFile Class2Skill => class_2_skill.base_file;
+
+        public TableFile SkillItemCutData => skill_item_cut_data.base_file;
+        public TableFile SkillItemMiningData => skill_item_mining_data.base_file;
+        public TableFile SkillItemPickData => skill_item_pick_data.base_file;
+
 
     }
 }

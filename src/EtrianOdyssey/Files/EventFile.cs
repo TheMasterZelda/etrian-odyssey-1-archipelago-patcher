@@ -1,4 +1,5 @@
 ﻿using etrian_odyssey_ap_patcher.DataCompression;
+using etrian_odyssey_ap_patcher.EtrianOdyssey.Event;
 
 namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
 {
@@ -16,6 +17,13 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
         public MemoryStream DataStream { get; set; }
         public byte[] FileData { get; set; }
         public CompressionType CompressionType { get; private set; }
+
+
+        public uint NumEntries;
+        public uint Unknown08;
+        public uint Unknown0C;
+
+        public List<EventEntry> Events;
 
         public EventFile(byte[] fileData, CompressionType compressionType, bool isNestedFile)
         {
@@ -38,6 +46,19 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
 
         public void Parse()
         {
+            BinaryReader reader = new BinaryReader(DataStream);
+            reader.BaseStream.Seek(4, SeekOrigin.Begin);
+            NumEntries = reader.ReadUInt32();
+            Unknown08 = reader.ReadUInt32();
+            Unknown0C = reader.ReadUInt32();
+            Events = new List<EventEntry>();
+
+            for (int i = 0; i < NumEntries; i++)
+            {
+                byte[] blockData = reader.ReadBytes(0x18);
+
+                Events.Add(new EventEntry(blockData));
+            }
 
         }
     }

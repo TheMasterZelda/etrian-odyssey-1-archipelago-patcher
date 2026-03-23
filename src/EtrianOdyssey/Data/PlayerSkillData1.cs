@@ -2,44 +2,6 @@
 
 namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
 {
-    public enum SkillValueType : ushort
-    {
-        TP_Cost = 0x01,
-        Damage_Modifier = 0x02, // Power.
-        Skill_Speed = 0x03,
-        Accuracy = 0x04,
-        ActivationRate = 0x05,
-        AllSlashNumberOfHit = 0x06,
-        NumberOfHit = 0x0C, // Multihit, Midareba and Suicide.
-        GatheringSkill = 0x0D,
-        StepCount = 0x0E,
-        Mastery = 0x0F, // validate.
-        Atk_Up = 0x10,
-
-        AilmentRate = 0x12, // ?
-
-        Adjacent_Attack_Power = 0x16, // Bait and Tornado.
-        Unknown17 = 0x17, // Used by Ambush and
-
-        Max_HP_Up = 0x32,
-        Max_TP_Up = 0x33,
-        Def_Up = 0x34,
-        Agi_Up = 0x35,
-
-
-        Buff_Damage_Done_Modifier = 0x64,
-        Buff_Damage_Taken_Modifier = 0x65,
-        Buff_Defense_Modifier = 0x66,
-
-        Buff_Max_HP_Modifier = 0x69,
-        Buff_Accuracy_Modifier = 0x6A,
-        Buff_Aggro_Modifier = 0x6B,
-        Buff_Agility_Modifier = 0x6C,
-        Buff_Escape_Modifier = 0x71,
-
-
-    }
-
     public class PlayerSkillData1
     {
         public PlayerSkillData1(byte[] data, EtrianString[] skillNames)
@@ -49,13 +11,67 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
             if (SkillID != 0)
                 Name = skillNames[SkillID - 1];
 
-            Unknown02 = BitConverter.ToUInt16(data, 2);
+            value_type = BitConverter.ToUInt16(data, 2);
 
             ValuePerLevel = new uint[15];
             for (int i = 0; i < 15; i++)
             {
                 ValuePerLevel[i] = BitConverter.ToUInt32(data, 4 + i * 4);
             }
+        }
+
+        public string GetSkillType()
+        {
+            switch (SkillAttributes.SkillType)
+            {
+                case Skill_eSK.PHYSICAL_ATTACK:
+                    return "PHYSICAL_ATTACK";
+                case Skill_eSK.MAGIC_ATTACK:
+                    return "MAGICAL_ATTACK";
+                case Skill_eSK.NO_DAMAGE_ATTACK:
+                    return "AILMENT_ATTACK";
+                case Skill_eSK.ABIL_WEAKNESS:
+                    return "DEBUFF";
+                case Skill_eSK.ABIL_REINFORCED:
+                    return "BUFF";
+                case Skill_eSK.COUNTER_ATTACK:
+                    return "COUNTER";
+                case Skill_eSK.PURSUIT:
+                    return "CHASE";
+                case Skill_eSK.COUNTER_DEFENSE:
+                    return "DEFENSE";
+                case Skill_eSK.HP_RECOVE:
+                    return "HEAL";
+                case Skill_eSK.BST_SEAL_RECOVE:
+                    return "AILMENT_HEAL";
+                case Skill_eSK.PARAMETER:
+                    return "PASSIVE";
+                case Skill_eSK.MASTARESKIL:
+                    return "MASTERY";
+                case Skill_eSK.DEFORESTATION:
+                case Skill_eSK.MINING:
+                case Skill_eSK.COLLECTION:
+                    return "GATHERING";
+                case Skill_eSK.SPECIAL:
+                    return "SPECIAL";
+                case Skill_eSK.REINFORCED_DISAPPEARANCE:
+                    return "BUFF_REMOVAL";
+                default:
+                    break;
+            }
+            throw new NotImplementedException();
+        }
+
+        public string GetAilment()
+        {
+            if (SkillAttributes.SkillType == Skill_eSK.BST_SEAL_RECOVE || 
+                SkillAttributes.SkillType == Skill_eSK.HP_RECOVE)
+                return "NONE";
+
+            if (SkillAttributes.HasMoreThanOneAilment())
+                throw new NotImplementedException();
+
+            return SkillAttributes.GetAilmentStr();
         }
 
         public override string ToString()
@@ -65,16 +81,72 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
 
         public SkillValueType GetSkillValueType()
         {
-            return (SkillValueType)Unknown02;
+            return (SkillValueType)value_type;
         }
+
+        public SkillValueType ValueType => GetSkillValueType();
 
         public EtrianString Name;
 
         public ushort SkillID;
-        public ushort Unknown02;
+        public ushort value_type;
         public uint[] ValuePerLevel;
 
         public List<PlayerSkillData1> SubEntry = new List<PlayerSkillData1>();
         public PlayerSkillData0 Data0Entry;
+        public PlayerSkillData0 SkillAttributes => Data0Entry;
     }
+
+    public enum SkillValueType : ushort
+    {
+        NONE = 0,
+        CONSUMPTION_TP = 1,
+        SKILL_COEFFICIENT = 2,
+        SPEED = 3,
+        HIT_RATE = 4,
+        RATE_X1 = 5,
+        RATE_X3 = 6,
+        RATE_X4 = 7,
+        COUNTER_RATE = 8,
+        COUNTER_DEC_RATE = 9,
+        RECOVERY_VALUE = 10,
+        BST_RECOVERY_LEVEL = 11,
+        ATTACK_NUMBER = 12,
+        GET_SUCCESS_COEFFICIENT = 13,
+        TURN_NUMBER = 14,
+        SKILL_MASTER_COEFFICIENT = 15,
+        ATTACK_BOOST_COEFFICIENT = 16,
+        ROLLED_DAMAGE_COEFFICIENT = 17,
+        EFFICACY_SUCCESS_RATE = 18,
+        EFFICACY_SKILL_COEFFICIENT = 19,
+        ATTR_ADD_ATTACK_SC = 20,
+        ATTR_ATTACK_VALUE = 21,
+        SC2 = 22,
+        VALX1 = 23,
+        PARAM_BOOST_HP = 50,
+        PARAM_BOOST_TP = 51,
+        PARAM_BOOST_AFFINITY_ALL = 52,
+        PARAM_BOOST_AGI = 53,
+        PARAM_BOOST_CRITICAL = 54,
+        PARAM_BOOST_EXP = 55,
+        PARAM_BOOST_BOOSTADD = 56,
+        MUL_SKILL_COEFFICIENT = 100,
+        MUL_AFFINITY = 101,
+        MUL_DEFENSE = 102,
+        MUL_PHYSICAL_ATTACK = 103,
+        MUL_MAGIC_ATTACK = 104,
+        MUL_HP_MAX = 105,
+        MUL_HIT = 106,
+        MUL_TARGET = 107,
+        MUL_ACTION_SPEED = 108,
+        HP_RECOVERY_RATE = 109,
+        TP_RECOVERY_RATE = 110,
+        BST_RECOVERY_TURN_CORRECTION = 111,
+        ABSORPTION_RATE = 112,
+        ESCAPE_RATE = 113,
+        CHANGE_ATC_ATTR = 114,
+        MUL_AFFINITY2 = 115,
+        REFLECTION_ATTR = 116,
+    }
+
 }

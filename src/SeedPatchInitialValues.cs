@@ -7,7 +7,7 @@
         public uint? experience_modifier { get; set; }
         public bool? landsknecht_unlocked { get; set; }
         public bool? survivalist_unlocked { get; set; }
-        public bool? protected_unlocked { get; set; }
+        public bool? protector_unlocked { get; set; }
         public bool? dark_hunter_unlocked { get; set; }
         public bool? medic_unlocked { get; set; }
         public bool? alchemist_unlocked { get; set; }
@@ -17,7 +17,7 @@
 
         public uint? landsknecht_skills { get; set; }
         public uint? survivalist_skills { get; set; }
-        public uint? protected_skills { get; set; }
+        public uint? protector_skills { get; set; }
         public uint? dark_hunter_skills { get; set; }
         public uint? medic_skills { get; set; }
         public uint? alchemist_skills { get; set; }
