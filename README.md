@@ -4,6 +4,10 @@ This is the project to apply archipelago patch for Etrian Odyssey 1 (DS). The ru
 
 Additionaly, this project offer the toolset to generate the `.bsdiff` file for the base patch along a data extraction used to generate most of the data used to make the apworld.
 
+Related projects:
+- [APWorld](https://github.com/TheMasterZelda/Etrian_Odyssey_1_Archipelago)
+- [Binary Patch](https://github.com/TheMasterZelda/etrian-odyssey-1-archipelago-patch)
+
 ## How to Use (Patcher)
 
 Run `etrian_odyssey_ap_patcher.exe`. It will prompt you to select in order:
@@ -31,3 +35,8 @@ Publish project, zip result.
 ## Note
 
 To replace the `patch.bsdiff` file, you need to manually delete the `bin` and `obj` folders for some reasons, otherwise the compiler sometimes uses the previous version
+
+## Credits
+
+This patcher makes heavy reuse of the code from [this incredible etrian odyssey 1 tool](https://github.com/xdanieldzd/Yggdrasil).
+The Nintendo DS rom parsing was made from [this extremely detailed specification document](https://problemkaputt.de/gbatek.htm#dscartridgeheader).
