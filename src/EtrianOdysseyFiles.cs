@@ -143,6 +143,9 @@ namespace etrian_odyssey_ap_patcher
 
         public void UpdateFiles()
         {
+            UpdateFile(item_name);
+            UpdateFile(item_info);
+            UpdateFile(item);
             UpdateFile(facility_text);
             UpdateFile(dungeon_mess);
 

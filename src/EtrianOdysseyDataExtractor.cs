@@ -446,7 +446,7 @@ namespace etrian_odyssey_ap_patcher
 
                     string constantName = FormatToConstant(class_name + "_" + skill.Name.StringValue);
 
-                    stringBuilder.Append($"    EO1SkillData(EO1Skills.{constantName}, \"{skill.Name}\", {ap_id++}, \"{class_name}\", " +
+                    stringBuilder.Append($"    EO1SkillData(EO1Skills.{constantName}, \"{skill.Name}\", {ap_id++}, EO1Class.{class_const}, " +
                         $"{skill_index}, " +
                         $"EO1SkillType.{skill.GetSkillType()}, EO1Element.{skill.SkillAttributes.PrimaryDamageType.ToString()}, " +
                         $"EO1Element.{skill.SkillAttributes.SecondaryDamageType.ToString()}, EO1Ailment.{skill.GetAilment()}, " +
@@ -1132,7 +1132,7 @@ foreach (var item in skill2Effects0)
                     $"{enemy.CutResistance}, {enemy.BashResistance}, {enemy.StabResistance}, " +
                     $"{enemy.FireResistance}, {enemy.IceResistance}, {enemy.VoltResistance}, " +
                     $"0x{enemy.Drop1ItemID.ToString("X000")}, 0x{enemy.Drop2ItemID.ToString("X000")}, " +
-                    $"0x{enemy.Drop3ItemID.ToString("X000")}, DropCondition.{enemy.GetDropCondition()}),");
+                    $"0x{enemy.Drop3ItemID.ToString("X000")}, DropCondition.{enemy.GetDropCondition()}, {enemy.Item3Chances}),");
             }
 
             File.WriteAllText("D:\\Projects\\EtrianOdyssey\\DataDump\\enemy.txt", stringBuilder.ToString());

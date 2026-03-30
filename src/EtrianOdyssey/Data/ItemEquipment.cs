@@ -42,6 +42,33 @@
             attack_1 = BitConverter.ToUInt16(data, 04);
             defense = BitConverter.ToUInt16(data, 08);
 
+            weapon_speed_modifier = data[0x0B]; // Unsure. 0B
+            slash_reduction = data[0x0C];
+            blunt_reduction = data[0x0D];
+            pierce_reduction = data[0x0E];
+            fire_reduction = data[0x0F];
+            ice_reduction = data[0x10];
+            volt_reduction = data[0x11];
+            death_reduction = data[0x12];
+            ailment_reduction = data[0x13];
+            head_bind_reduction = data[0x14];
+            arm_bind_reduction = data[0x15];
+            leg_bind_reduction = data[0x16];
+            bonus_str = data[0x17];
+            bonus_vit = data[0x18];
+            bonus_agi = data[0x19];
+            bonus_luc = data[0x1A];
+            bonus_tec = data[0x1B];
+            bonus_hp = data[0x1C];
+            bonus_tp = data[0x1D];
+            bonus_bp = data[0x1E];
+            unknown_1f = data[0x1F]; // always 0x00.
+            buy_price = BitConverter.ToUInt32(data, 0x20); // 0x20-0x23
+            sell_price = BitConverter.ToUInt32(data, 0x24); ; // 0x24-0x27
+            usable_by = data[0x28]; ; // 0x28
+            usable_by_2_and_unknown = data[0x29]; ; // 0x29
+            unknown_2A = data[0x2A]; ; // 0x2A
+            unknown_2B = data[0x2B]; ; // 0x2B
         }
 
         public override string ToString()
@@ -82,11 +109,11 @@
         public byte bonus_tp;
         public byte bonus_bp;
         public byte unknown_1f; // always 0x00.
-        public uint buy_price;
-        public uint sell_price;
-        public byte usable_by;
-        public byte usable_by_2_and_unknown;
-        public byte unknown_2A;
-        public byte unknown_2B;
+        public uint buy_price; // 0x20-0x23
+        public uint sell_price; // 0x24-0x27
+        public byte usable_by; // 0x28
+        public byte usable_by_2_and_unknown; // 0x29
+        public byte unknown_2A; // 0x2A
+        public byte unknown_2B; // 0x2B
     }
 }

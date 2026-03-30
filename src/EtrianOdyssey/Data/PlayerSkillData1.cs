@@ -25,46 +25,91 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
             switch (SkillAttributes.SkillType)
             {
                 case Skill_eSK.PHYSICAL_ATTACK:
-                    return "PHYSICAL_ATTACK";
+                    return "PHYSICAL_ATTACK"; // Active
                 case Skill_eSK.MAGIC_ATTACK:
-                    return "MAGICAL_ATTACK";
+                    return "MAGICAL_ATTACK"; // Active
                 case Skill_eSK.NO_DAMAGE_ATTACK:
-                    return "AILMENT_ATTACK";
+                    return "AILMENT_ATTACK"; // Active
                 case Skill_eSK.ABIL_WEAKNESS:
-                    return "DEBUFF";
+                    return "DEBUFF"; // Active
                 case Skill_eSK.ABIL_REINFORCED:
-                    return "BUFF";
+                    return "BUFF"; // Active
                 case Skill_eSK.COUNTER_ATTACK:
-                    return "COUNTER";
+                    return "COUNTER"; // Active
                 case Skill_eSK.PURSUIT:
-                    return "CHASE";
+                    return "CHASE"; // Active
                 case Skill_eSK.COUNTER_DEFENSE:
-                    return "DEFENSE";
+                    return "DEFENSE"; // Active
                 case Skill_eSK.HP_RECOVE:
-                    return "HEAL";
+                    return "HEAL"; // Active
                 case Skill_eSK.BST_SEAL_RECOVE:
-                    return "AILMENT_HEAL";
+                    return "AILMENT_HEAL"; // Active
                 case Skill_eSK.PARAMETER:
                     return "PASSIVE";
                 case Skill_eSK.MASTARESKIL:
                     return "MASTERY";
                 case Skill_eSK.DEFORESTATION:
+                    if (this.SkillID == 0x47) // Dark Hunter Take skill is mistakenly defined as Chop.
+                        return "TAKE";
+                    return "CHOP";
                 case Skill_eSK.MINING:
+                    return "MINE";
                 case Skill_eSK.COLLECTION:
-                    return "GATHERING";
+                    return "TAKE";
                 case Skill_eSK.SPECIAL:
-                    return "SPECIAL";
+                    {
+                        // Result depend on specific skill.
+                        switch (this.SkillID)
+                        {
+                            case 0x15: // LANDSKNECHT_FLEE
+                            case 0x3E: // PROTECTOR_FLEE
+                                return "ESCAPE"; // Active
+
+                            case 0x25: // SURVIVALIST_APOLLON
+                            case 0x67: // RONIN_KUBIUCHI
+                            case 0x4D: // DARK_HUNTER_ECSTASY
+                            case 0x4E: // DARK_HUNTER_CLIMAX
+                            case 0xBC: // HEXER_REVENGE
+                                return "SPECIAL_PHYSICAL_ATTACK"; // Active
+
+                            case 0x1F: // SURVIVALIST_1ST_TURN
+                                return "TURN_MANIPULATION"; // Active
+
+                            case 0x6E: // MEDIC_PATCH_UP
+                            case 0x7E: // MEDIC_H_TOUCH
+                                return "FIELD_HEAL";
+
+                            case 0xAC: // HEXER_STAGGER
+                                return "FIELD_PASSIVE";
+
+                            case 0x2A: // SURVIVALIST_OWL_EYE
+                            case 0x93: // ALCHEMIST_WARP
+                            case 0xA7: // TROUBADOUR_RETURN
+                                return "FIELD_UTILITY";
+
+                            case 0xA0: // TROUBADOUR_IFRIT
+                            case 0xA1: // TROUBADOUR_YMIR
+                            case 0xA2: // TROUBADOUR_TARANIS
+                                return "BUFF"; // Active
+
+                            case 0xB9:// HEXER_SUICIDE
+                            case 0xBA:// HEXER_BETRAYAL
+                            case 0xBB:// HEXER_PARALYZE
+                                return "CURSE"; // Active
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
                 case Skill_eSK.REINFORCED_DISAPPEARANCE:
-                    return "BUFF_REMOVAL";
+                    return "BUFF_REMOVAL"; // Active
                 default:
-                    break;
+                    throw new NotImplementedException();
             }
-            throw new NotImplementedException();
         }
 
         public string GetAilment()
         {
-            if (SkillAttributes.SkillType == Skill_eSK.BST_SEAL_RECOVE || 
+            if (SkillAttributes.SkillType == Skill_eSK.BST_SEAL_RECOVE ||
                 SkillAttributes.SkillType == Skill_eSK.HP_RECOVE)
                 return "NONE";
 

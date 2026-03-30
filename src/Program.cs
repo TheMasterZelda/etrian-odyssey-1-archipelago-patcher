@@ -27,6 +27,7 @@ internal class Program
 
         patcher.ReplaceArm9(File.ReadAllBytes(@"D:\Projects\EtrianOdyssey\Git\etrian-odyssey-1-archipelago-patch\arm9.bin"));
         patcher.ApplyShopTextPatch();
+        patcher.AddShinai();
         patcher.ApplyTreasureBoxTextPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
         //patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_22080746147398243852\AP_22080746147398243852_P1_TMZ.apeo1", FileMode.Open));
@@ -114,6 +115,7 @@ internal class Program
             patcher.ApplyShopTextPatch();
             patcher.ApplyTreasureBoxTextPatch();
             patcher.ApplyRestCostReductionPatch();
+            patcher.AddShinai();
             // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
             patcher.ApplyAPPatch(new FileStream(openAPPatch.FileName, FileMode.Open));
             patcher.ApplyAPGameTitle();

@@ -57,6 +57,48 @@ namespace etrian_odyssey_ap_patcher
             rom.arm9 = arm9;
         }
 
+        public void AddShinai()
+        {
+            ushort shinai_item_id = 72;
+
+            var entry = ((DataTable)files.Item.Tables[0]).Data[shinai_item_id - 1];
+            var item_names = ((MessageTable)files.ItemName.Tables[0]).Messages;
+            var item_info = ((MessageTable)files.ItemInfo.Tables[0]).Messages;
+            //var item = new ItemEquipment(entry, item_names);
+
+            // 0A
+            entry[0x0A] = 0x04;
+            //item.equipment_type = 0x04;
+            // 02
+            entry[0x02] = 0x00;
+            //item.damage_type = 0;
+            //item.secondary_damage_type = 0x06;
+            // 0B
+            entry[0x0B] = 0xFF;
+            //item.weapon_speed_modifier = 0xFF;
+            // 04-05
+            ByteUtil.Write(entry, 0x04, (ushort)10);
+            //item.attack_1 = 10;
+
+            // 0x24-0x27
+            ByteUtil.Write(entry, 0x24, (uint)80);
+            //item.sell_price = 80;
+            // 0x20-0x23
+            ByteUtil.Write(entry, 0x20, (uint)200);
+            //item.buy_price = 200;
+            // 0x28
+            entry[0x28] = 0x10;
+            //item.usable_by = 0x10;
+            // 0x29
+            entry[0x29] = 0x10;
+            //item.usable_by_2_and_unknown = 0x11;
+            ((DataTable)files.Item.Tables[0]).Data[shinai_item_id - 1] = entry;
+            item_names[shinai_item_id - 1].Update("Shinai");
+
+            string shinai_description = "Bamboo Katana.\r\nPerfect for a trainee.\r\n<!color=0009>ATK<!color=000A>+10";
+            item_info[shinai_item_id - 1].Update(shinai_description);
+        }
+
         public void ApplyCodePatch()
         {
             MemoryStream old_arm9 = new MemoryStream(rom.arm9);
