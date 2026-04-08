@@ -1,4 +1,5 @@
 ﻿using BsDiff;
+using etrian_odyssey_ap_patcher.EtrianOdyssey.Data;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Files;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.MapData;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
@@ -123,7 +124,35 @@ namespace etrian_odyssey_ap_patcher
             ApplyInitialValues(patchData.InitialValues);
             ApplyTreasureBoxPatch(patchData.TreasureBoxes);
 
+            if (patchData.ShopUnlockMaterialCostDivider.HasValue)
+                ApplyShopUnlockQoLPatch(patchData.ShopUnlockMaterialCostDivider.Value);
+        }
 
+        public void ApplyShopUnlockQoLPatch(int divider)
+        {
+            var messages = ((MessageTable)files.ItemName.Tables[0]).Messages;
+            for (int i = 0; i < ((DataTable)files.ItemCompound.Tables[0]).Data.Length; i++)
+            {
+                byte[] entry = ((DataTable)files.ItemCompound.Tables[0]).Data[i];
+                var item_compound = new ItemCompound(entry, messages);
+
+                if (item_compound.name.RawData.Length == 1 && item_compound.name.RawData[0] == 0)
+                    continue;
+
+                item_compound.material_1_count = ReduceWithRounding(item_compound.material_1_count);
+                item_compound.material_2_count = ReduceWithRounding(item_compound.material_2_count);
+                item_compound.material_3_count = ReduceWithRounding(item_compound.material_3_count);
+
+                ((DataTable)files.ItemCompound.Tables[0]).Data[i] = item_compound.Save();
+            }
+
+            byte ReduceWithRounding(byte original_count)
+            {
+                if (original_count == 0)
+                    return 0;
+
+                return (byte)Math.Max(1, Math.Ceiling(((decimal)original_count) / divider));
+            }
         }
 
         public void ApplyTreasureBoxPatch(List<SeedPatchTreasureData> treasureDataList)

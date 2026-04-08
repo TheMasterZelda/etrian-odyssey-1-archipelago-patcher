@@ -1,5 +1,6 @@
 ﻿using etrian_odyssey_ap_patcher.EtrianOdyssey;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Data;
+using etrian_odyssey_ap_patcher.EtrianOdyssey.Event;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Files;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.MapData;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
@@ -22,6 +23,17 @@ namespace etrian_odyssey_ap_patcher
             Rom rom = parser.Parse();
             files = new EtrianOdysseyFiles(rom);
             output_folder = outputFolder;
+
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (int x = 0; x < 0x200; x += 2)
+            {
+                stringBuilder.AppendLine($"0x{x.ToString("X3")}/0x{(8 * x).ToString("X3")}/{8 * x}");
+            }
+
+            OutputFile("numbers.txt", stringBuilder.ToString());
+
         }
 
         private void OutputFile(string filename, string content)
@@ -61,9 +73,77 @@ namespace etrian_odyssey_ap_patcher
 
         public void ParseEvents()
         {
-            var file_entry = files.GetFile(@"/Data/Event/DUN_04F.cmp");
+            Dictionary<string, EventFile> eventFiles = new Dictionary<string, EventFile>();
 
-            var event_file = new EventFile(file_entry.file_content);
+
+            for (int i = 0; i < 30; i++)
+                LoadFile($"DUN_{(i + 1).ToString("d2")}F");
+
+            //LoadFile("Byouin"); // Hospital
+            LoadFile("Guild");
+            LoadFile("Hiroba");
+            LoadFile("Hospital");
+            LoadFile("Jukai");
+
+            for (int i = 0; i < 7; i++)
+                LoadFile($"MIS_{i.ToString("d3")}");
+
+            for (int i = 0; i < 93; i++)
+            {
+                //if (i == 11 || i == 24 || i == 26 || i == 27 || 
+                //    i == 28 || i == 39 || i == 43 || i == 50 || 
+                //    i == 66 || i == 67 || i == 69 || i == 72 || 
+                //    i == 84 || i == 91)
+                //    continue;
+                LoadFile($"QUE_{i.ToString("d3")}");
+            }
+
+            LoadFile("Sakaba");
+            LoadFile("Shop");
+            LoadFile("Touti");
+            LoadFile("Yadoya");
+
+            foreach (KeyValuePair<string, EventFile> eventFile in eventFiles)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+
+                foreach (EventEntry event_entry in eventFile.Value.Events)
+                {
+                    stringBuilder.AppendLine($"event_index={event_entry.event_index}");
+                    stringBuilder.AppendLine($"checkPlace={event_entry.checkPlace}");
+                    stringBuilder.AppendLine($"coordX={event_entry.coordX}");
+                    stringBuilder.AppendLine($"coordY={event_entry.coordY}");
+                    stringBuilder.AppendLine($"unknown condition 04={event_entry.unknown_condition_04}");
+                    stringBuilder.AppendLine($"unknown condition 05={event_entry.unknown_condition_05}");
+                    stringBuilder.AppendLine($"direction=0x{event_entry.direction:X2}");
+                    stringBuilder.AppendLine($"unknown condition 07={event_entry.unknown_condition_07}");
+                    stringBuilder.AppendLine($"required_flag=0x{event_entry.required_flag.ToString("X3")}");
+                    stringBuilder.AppendLine($"not_set_flag=0x{event_entry.not_set_flag.ToString("X3")}");
+                    stringBuilder.AppendLine($"unknown condition 10={event_entry.unknown_condition_10}");
+                    stringBuilder.AppendLine($"unknown condition 11={event_entry.unknown_condition_11}");
+                    stringBuilder.AppendLine($"unknown 12={event_entry.unknown_12}");
+                    stringBuilder.AppendLine($"script_offset={event_entry.script_offset}");
+                    stringBuilder.AppendLine("script:");
+
+                    foreach (EventScriptCommand command in event_entry.script.Commands)
+                    {
+                        string parameters = command.GetParametersAsString();
+
+                        stringBuilder.AppendLine($"{command.CommandId}: {parameters}");
+                    }
+
+                    stringBuilder.AppendLine();
+                    stringBuilder.AppendLine();
+                }
+
+                OutputFile(@$"event\{eventFile.Key}.txt", stringBuilder.ToString());
+            }
+
+            void LoadFile(string filename)
+            {
+                var eventFile = new EventFile(files.GetFile(@$"/Data/Event/{filename}.cmp").file_content);
+                eventFiles.Add(filename, eventFile);
+            }
         }
 
         public void GatheringSpot()

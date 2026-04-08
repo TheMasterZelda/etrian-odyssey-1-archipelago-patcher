@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
+﻿namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
 {
     public class EventEntry
     {
@@ -22,250 +20,131 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
         // 14-17 = Script start offset.
         public EventEntry(byte[] blockData)
         {
-            script_offset = BitConverter.ToUInt32(blockData, 0x14);
+            event_index = blockData[0x0];
+            locationID = blockData[0x1];
+            coordX = (sbyte)blockData[0x2];
+            coordY = (sbyte)blockData[0x3];
+            unknown_condition_04 = blockData[0x4];
+            unknown_condition_05 = blockData[0x5];
+            direction = blockData[0x6];
+            unknown_condition_07 = blockData[0x7];
 
+            required_flag = BitConverter.ToInt32(blockData, 0x08);
+            not_set_flag = BitConverter.ToInt32(blockData, 0x0C);
+            
+            unknown_condition_10 = (sbyte)blockData[0x10];
+            unknown_condition_11 = (sbyte)blockData[0x11];
+            unknown_12 = BitConverter.ToUInt16(blockData, 0x12);
+
+            script_offset = BitConverter.ToUInt32(blockData, 0x14);
         }
 
+        public override string ToString()
+        {
+            return not_set_flag.ToString("X");
+        }
+
+        public CheckPlace checkPlace => (CheckPlace)locationID;
+        public byte event_index; // 00
+        public byte locationID; // 01
+        public sbyte coordX; // 02
+        public sbyte coordY; // 03
+        public byte unknown_condition_04; // 04
+        public byte unknown_condition_05; // 05
+
+        public EventDirType dirType => (EventDirType)direction;
+        public byte direction; // 06
+        public byte unknown_condition_07; // 07
+
+        public int required_flag;
+        public int not_set_flag;
+        public sbyte unknown_condition_10; // 10
+        public sbyte unknown_condition_11; // 11
+
+        public ushort unknown_12; // 12-13
+
         public uint script_offset;
+
+		public EventScript script;
     }
 
+    public enum CheckPlace
+    {
+        E_PLACE_NONE = -1,
+        E_DUNGEON_COMMON = 0,
+        E_SISETU_COMMON = 1,
+        E_YADOYA_IN = 2,
+        E_YADOYA_TALK = 3,
+        E_YADOYA_OUT = 4,
+        E_SHOP_IN = 5,
+        E_SHOP_TALK = 6,
+        E_SHOP_OUT = 7,
+        E_TOUTI_IN = 8,
+        E_TOUTI_TALK = 9,
+        E_TOUTI_OUT = 10,
+        E_TOUTI_UKERU = 11,
+        E_TOUTI_HOUKOKU = 12,
+        E_SAKABA_IN = 13,
+        E_SAKABA_TALK = 14,
+        E_SAKABA_OUT = 15,
+        E_SAKABA_UKERU = 16,
+        E_SAKABA_HOUKOKU = 17,
+        E_GUILD_IN = 18,
+        E_GUILD_TALK = 19,
+        E_GUILD_OUT = 20,
+        E_HOSPITAL_IN = 21,
+        E_HOSPITAL_TALK = 22,
+        E_HOSPITAL_OUT = 23,
+        E_HIROBA_IN = 24,
+        E_HIROBA_OUT = 25,
+        E_JUKAI_ENTER_IN = 26,
+        E_JUKAI_ENTER_OUT = 27,
+        E_BATTLE_END = 28,
+        E_DUNGEON_01F = 29,
+        E_DUNGEON_02F = 30,
+        E_DUNGEON_03F = 31,
+        E_DUNGEON_04F = 32,
+        E_DUNGEON_05F = 33,
+        E_DUNGEON_06F = 34,
+        E_DUNGEON_07F = 35,
+        E_DUNGEON_08F = 36,
+        E_DUNGEON_09F = 37,
+        E_DUNGEON_10F = 38,
+        E_DUNGEON_11F = 39,
+        E_DUNGEON_12F = 40,
+        E_DUNGEON_13F = 41,
+        E_DUNGEON_14F = 42,
+        E_DUNGEON_15F = 43,
+        E_DUNGEON_16F = 44,
+        E_DUNGEON_17F = 45,
+        E_DUNGEON_18F = 46,
+        E_DUNGEON_19F = 47,
+        E_DUNGEON_20F = 48,
+        E_DUNGEON_21F = 49,
+        E_DUNGEON_22F = 50,
+        E_DUNGEON_23F = 51,
+        E_DUNGEON_24F = 52,
+        E_DUNGEON_25F = 53,
+        E_DUNGEON_26F = 54,
+        E_DUNGEON_27F = 55,
+        E_DUNGEON_28F = 56,
+        E_DUNGEON_29F = 57,
+        E_DUNGEON_30F = 58,
+        E_SAKABA_HOUKOKU_MAE = 59,
+        E_CAMP_BOOK_MAE = 60,
+        E_PLACE_MAX = 61,
+    }
 
-    /*
-    // Namespace: 
-    public enum EventCheck.CheckPlace // TypeDefIndex: 10762
-{
-	// Fields
-	public int value__; // 0x0
-    public const EventCheck.CheckPlace E_PLACE_NONE = -1;
-    public const EventCheck.CheckPlace E_DUNGEON_COMMON = 0;
-    public const EventCheck.CheckPlace E_SISETU_COMMON = 1;
-    public const EventCheck.CheckPlace E_YADOYA_IN = 2;
-    public const EventCheck.CheckPlace E_YADOYA_TALK = 3;
-    public const EventCheck.CheckPlace E_YADOYA_OUT = 4;
-    public const EventCheck.CheckPlace E_SHOP_IN = 5;
-    public const EventCheck.CheckPlace E_SHOP_TALK = 6;
-    public const EventCheck.CheckPlace E_SHOP_OUT = 7;
-    public const EventCheck.CheckPlace E_TOUTI_IN = 8;
-    public const EventCheck.CheckPlace E_TOUTI_TALK = 9;
-    public const EventCheck.CheckPlace E_TOUTI_OUT = 10;
-    public const EventCheck.CheckPlace E_TOUTI_UKERU = 11;
-    public const EventCheck.CheckPlace E_TOUTI_HOUKOKU = 12;
-    public const EventCheck.CheckPlace E_SAKABA_IN = 13;
-    public const EventCheck.CheckPlace E_SAKABA_TALK = 14;
-    public const EventCheck.CheckPlace E_SAKABA_OUT = 15;
-    public const EventCheck.CheckPlace E_SAKABA_UKERU = 16;
-    public const EventCheck.CheckPlace E_SAKABA_HOUKOKU = 17;
-    public const EventCheck.CheckPlace E_GUILD_IN = 18;
-    public const EventCheck.CheckPlace E_GUILD_TALK = 19;
-    public const EventCheck.CheckPlace E_GUILD_OUT = 20;
-    public const EventCheck.CheckPlace E_HOSPITAL_IN = 21;
-    public const EventCheck.CheckPlace E_HOSPITAL_TALK = 22;
-    public const EventCheck.CheckPlace E_HOSPITAL_OUT = 23;
-    public const EventCheck.CheckPlace E_HIROBA_IN = 24;
-    public const EventCheck.CheckPlace E_HIROBA_OUT = 25;
-    public const EventCheck.CheckPlace E_JUKAI_ENTER_IN = 26;
-    public const EventCheck.CheckPlace E_JUKAI_ENTER_OUT = 27;
-    public const EventCheck.CheckPlace E_BATTLE_END = 28;
-    public const EventCheck.CheckPlace E_DUNGEON_01F = 29;
-    public const EventCheck.CheckPlace E_DUNGEON_02F = 30;
-    public const EventCheck.CheckPlace E_DUNGEON_03F = 31;
-    public const EventCheck.CheckPlace E_DUNGEON_04F = 32;
-    public const EventCheck.CheckPlace E_DUNGEON_05F = 33;
-    public const EventCheck.CheckPlace E_DUNGEON_06F = 34;
-    public const EventCheck.CheckPlace E_DUNGEON_07F = 35;
-    public const EventCheck.CheckPlace E_DUNGEON_08F = 36;
-    public const EventCheck.CheckPlace E_DUNGEON_09F = 37;
-    public const EventCheck.CheckPlace E_DUNGEON_10F = 38;
-    public const EventCheck.CheckPlace E_DUNGEON_11F = 39;
-    public const EventCheck.CheckPlace E_DUNGEON_12F = 40;
-    public const EventCheck.CheckPlace E_DUNGEON_13F = 41;
-    public const EventCheck.CheckPlace E_DUNGEON_14F = 42;
-    public const EventCheck.CheckPlace E_DUNGEON_15F = 43;
-    public const EventCheck.CheckPlace E_DUNGEON_16F = 44;
-    public const EventCheck.CheckPlace E_DUNGEON_17F = 45;
-    public const EventCheck.CheckPlace E_DUNGEON_18F = 46;
-    public const EventCheck.CheckPlace E_DUNGEON_19F = 47;
-    public const EventCheck.CheckPlace E_DUNGEON_20F = 48;
-    public const EventCheck.CheckPlace E_DUNGEON_21F = 49;
-    public const EventCheck.CheckPlace E_DUNGEON_22F = 50;
-    public const EventCheck.CheckPlace E_DUNGEON_23F = 51;
-    public const EventCheck.CheckPlace E_DUNGEON_24F = 52;
-    public const EventCheck.CheckPlace E_DUNGEON_25F = 53;
-    public const EventCheck.CheckPlace E_DUNGEON_26F = 54;
-    public const EventCheck.CheckPlace E_DUNGEON_27F = 55;
-    public const EventCheck.CheckPlace E_DUNGEON_28F = 56;
-    public const EventCheck.CheckPlace E_DUNGEON_29F = 57;
-    public const EventCheck.CheckPlace E_DUNGEON_30F = 58;
-    public const EventCheck.CheckPlace E_SAKABA_HOUKOKU_MAE = 59;
-    public const EventCheck.CheckPlace E_CAMP_BOOK_MAE = 60;
-    public const EventCheck.CheckPlace E_PLACE_MAX = 61;
-}
-    */
-
-    /*
-     // Namespace: 
-public enum EventCheck.EventDirType // TypeDefIndex: 10763
-{
-	// Fields
-	public int value__; // 0x0
-	public const EventCheck.EventDirType E_EVE_DIR_NONE = 0;
-	public const EventCheck.EventDirType E_EVE_DIR_EAST = 1;
-	public const EventCheck.EventDirType E_EVE_DIR_NORTH = 2;
-	public const EventCheck.EventDirType E_EVE_DIR_WEST = 3;
-	public const EventCheck.EventDirType E_EVE_DIR_SOUTH = 4;
-	public const EventCheck.EventDirType E_EVE_DIR_ALL = 5;
-	public const EventCheck.EventDirType E_EVE_DIR_MAX = 6;
-}
-     */
-    /*
-     
-
-// Namespace: 
-public enum EventSetFuncTbl.CommandId // TypeDefIndex: 10808
-{
-	// Fields
-	public int value__; // 0x0
-	public const EventSetFuncTbl.CommandId E_COMID_EVENT = 0;
-	public const EventSetFuncTbl.CommandId E_COMID_EOF = 1;
-	public const EventSetFuncTbl.CommandId E_COMID_MES_LOAD = 2;
-	public const EventSetFuncTbl.CommandId E_COMID_MES_CITY = 3;
-	public const EventSetFuncTbl.CommandId E_COMID_MES_DUNJON = 4;
-	public const EventSetFuncTbl.CommandId E_COMID_MES_WIN_CLOSE = 5;
-	public const EventSetFuncTbl.CommandId E_COMID_CHR_SET = 6;
-	public const EventSetFuncTbl.CommandId E_COMID_CHR_IN = 7;
-	public const EventSetFuncTbl.CommandId E_COMID_CHR_OUT = 8;
-	public const EventSetFuncTbl.CommandId E_COMID_CHR_DEL = 9;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_SET = 10;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_IN = 11;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_OUT = 12;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_DEL = 13;
-	public const EventSetFuncTbl.CommandId E_COMID_BGM_SET = 14;
-	public const EventSetFuncTbl.CommandId E_COMID_BGM_ON = 15;
-	public const EventSetFuncTbl.CommandId E_COMID_BGM_OFF = 16;
-	public const EventSetFuncTbl.CommandId E_COMID_BGM_OUT = 17;
-	public const EventSetFuncTbl.CommandId E_COMID_SE_ON = 18;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_THREE = 19;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_1 = 20;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_2 = 21;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_3 = 22;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_YESNO = 23;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_YES = 24;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_NO = 25;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_END = 26;
-	public const EventSetFuncTbl.CommandId E_COMID_IF = 27;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_TURE = 28;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_FALSE = 29;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_END = 30;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_BATTLE = 31;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_ENMON = 32;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_ENMOFF = 33;
-	public const EventSetFuncTbl.CommandId E_COMID_FLAGON = 34;
-	public const EventSetFuncTbl.CommandId E_COMID_FLAGOFF = 35;
-	public const EventSetFuncTbl.CommandId E_COMID_P_WARP = 36;
-	public const EventSetFuncTbl.CommandId E_COMID_P_SIGHT = 37;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_GET_GOLD = 38;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_LOST_GOLD = 39;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_GET_ITEM = 40;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_LOST_ITEM = 41;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_GET_HP = 42;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_LOST_HP = 43;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_GET_TP = 44;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_LOST_TP = 45;
-	public const EventSetFuncTbl.CommandId E_COMID_DISP_SHAKE = 46;
-	public const EventSetFuncTbl.CommandId E_COMID_DISP_FADEOUT = 47;
-	public const EventSetFuncTbl.CommandId E_COMID_DISP_FADEIN = 48;
-	public const EventSetFuncTbl.CommandId E_COMID_LABEL = 49;
-	public const EventSetFuncTbl.CommandId E_COMID_LABEL_DEFINE = 50;
-	public const EventSetFuncTbl.CommandId E_COMID_JUMP_LABEL = 51;
-	public const EventSetFuncTbl.CommandId E_COMID_WAIT = 52;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_START = 53;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_END = 54;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_START_NUM = 55;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_START_NUM_FROM = 56;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_START_NUM_TO = 57;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_2 = 58;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_TURE_2 = 59;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_FALSE_2 = 60;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_END_2 = 61;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_3 = 62;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_TURE_3 = 63;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_FALSE_3 = 64;
-	public const EventSetFuncTbl.CommandId E_COMID_IF_END_3 = 65;
-	public const EventSetFuncTbl.CommandId E_COMID_TMP_FLAG_ON = 66;
-	public const EventSetFuncTbl.CommandId E_COMID_TMP_FLAG_OFF = 67;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_THREE_2 = 68;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_1_2 = 69;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_2_2 = 70;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_3_2 = 71;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_YESNO_2 = 72;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_YES_2 = 73;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_NO_2 = 74;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_END_2 = 75;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_THREE_3 = 76;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_1_3 = 77;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_2_3 = 78;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_3_3 = 79;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_YESNO_3 = 80;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_YES_3 = 81;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_NO_3 = 82;
-	public const EventSetFuncTbl.CommandId E_COMID_SEL_END_3 = 83;
-	public const EventSetFuncTbl.CommandId E_COMID_PARTY_MOVE = 84;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_ITEM_1 = 85;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_ITEM_2 = 86;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_ITEM_3 = 87;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_ITEM_4 = 88;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_ITEM_5 = 89;
-	public const EventSetFuncTbl.CommandId E_COMID_KEY_WAIT = 90;
-	public const EventSetFuncTbl.CommandId E_COMID_TIME_WND_ON = 91;
-	public const EventSetFuncTbl.CommandId E_COMID_TIME_WND_OFF = 92;
-	public const EventSetFuncTbl.CommandId E_COMID_MINING = 93;
-	public const EventSetFuncTbl.CommandId E_COMID_PICK = 94;
-	public const EventSetFuncTbl.CommandId E_COMID_CUT = 95;
-	public const EventSetFuncTbl.CommandId E_COMID_VALUE_1 = 96;
-	public const EventSetFuncTbl.CommandId E_COMID_VALUE_2 = 97;
-	public const EventSetFuncTbl.CommandId E_COMID_VALUE_3 = 98;
-	public const EventSetFuncTbl.CommandId E_COMID_VALUE_4 = 99;
-	public const EventSetFuncTbl.CommandId E_COMID_VALUE_5 = 100;
-	public const EventSetFuncTbl.CommandId E_COMID_P_DIR = 101;
-	public const EventSetFuncTbl.CommandId E_COMID_SCENE_CHANGE = 102;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_CROSS_FADE = 103;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_SET_2 = 104;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_IN_2 = 105;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_OUT_2 = 106;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_DEL_2 = 107;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_PLAYER = 108;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_SKILL_01 = 109;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_SKILL_02 = 110;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_SKILL_03 = 111;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_SKILL_04 = 112;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_TGT_SKILL_05 = 113;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_PRIO = 114;
-	public const EventSetFuncTbl.CommandId E_COMID_OBJ_PRIO_2 = 115;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_CURE_ALL = 116;
-	public const EventSetFuncTbl.CommandId E_COMID_DRAW_MAP = 117;
-	public const EventSetFuncTbl.CommandId E_COMID_ENEMY_CREATE_ON = 118;
-	public const EventSetFuncTbl.CommandId E_COMID_ENEMY_CREATE_OFF = 119;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_FG_FENEMY_KILL = 120;
-	public const EventSetFuncTbl.CommandId E_COMID_MAP_FADE_IN = 121;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_SHOP_LIST_FG = 122;
-	public const EventSetFuncTbl.CommandId E_COMID_SET_DUNGEON_WALK = 123;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_GET_HP_NOT_ARRIVE = 124;
-	public const EventSetFuncTbl.CommandId E_COMID_EV_LOST_HP_DEAD = 125;
-	public const EventSetFuncTbl.CommandId E_COMID_CLEAR_FG_FENEMY_KILL = 126;
-	public const EventSetFuncTbl.CommandId E_COMID_CHECK_NEW_ILLUSTRATION = 127;
-	public const EventSetFuncTbl.CommandId E_COMID_FENEMY_CLEAR_REVIVEDAY = 128;
-	public const EventSetFuncTbl.CommandId E_COMID_FENEMY_RESET_REVIVEDAY = 129;
-	public const EventSetFuncTbl.CommandId E_COMID_STOP_FOE_NEXT_TURN = 130;
-	public const EventSetFuncTbl.CommandId E_COMID_MAX = 131;
-}
-     */
-
-
-
-
-
-
-
+    public enum EventDirType
+    {
+        E_EVE_DIR_NONE = 0,
+        E_EVE_DIR_EAST = 1,
+        E_EVE_DIR_NORTH = 2,
+        E_EVE_DIR_WEST = 3,
+        E_EVE_DIR_SOUTH = 4,
+        E_EVE_DIR_ALL = 5,
+        E_EVE_DIR_MAX = 6,
+    }
 
 
     /*

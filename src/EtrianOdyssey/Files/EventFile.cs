@@ -60,6 +60,21 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
                 Events.Add(new EventEntry(blockData));
             }
 
+            long bytesLeft = reader.BaseStream.Length - reader.BaseStream.Position;
+
+            byte[] eventScripts = reader.ReadBytes((int)bytesLeft);
+
+            for (int i = 0; i < NumEntries; i++)
+            {
+                EventScript script = EventScriptParser.ParseEventScript(eventScripts, Events[i].script_offset);
+                Events[i].script = script;
+            }
+
+            //if (eventScripts[1] != 0x37)
+            //    throw new Exception();
+            //
+            //if (eventScripts.Last() != 0x39)
+            //    throw new Exception();
         }
     }
 }

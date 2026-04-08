@@ -1,9 +1,13 @@
-﻿namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
+﻿using etrian_odyssey_ap_patcher.Util;
+
+namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
 {
     public class ItemCompound
     {
         public ItemCompound(byte[] data, EtrianString[] nameTable)
         {
+            originalData = data;
+
             item_id = BitConverter.ToUInt16(data, 0);
             name = nameTable[item_id - 1];
             material_1_item_id = BitConverter.ToUInt16(data, 2);
@@ -26,6 +30,18 @@
             material_3_count = data[0xE];
         }
 
+        private readonly byte[] originalData;
+
+        public byte[] Save()
+        {
+            byte[] data = (byte[])originalData.Clone();
+
+            ByteUtil.Write(data, 0xC, material_1_count);
+            ByteUtil.Write(data, 0xD, material_2_count);
+            ByteUtil.Write(data, 0xE, material_3_count);
+
+            return data;
+        }
 
         public override string ToString()
         {
