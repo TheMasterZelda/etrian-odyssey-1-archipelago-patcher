@@ -6,6 +6,7 @@ using etrian_odyssey_ap_patcher.EtrianOdyssey.MapData;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
 using etrian_odyssey_ap_patcher.NitroRom;
 using System;
+using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 
@@ -71,6 +72,52 @@ namespace etrian_odyssey_ap_patcher
             return itemOthers.ToDictionary(k => k.item_id, v => v);
         }
 
+        public void EventIndex()
+        {
+            byte[][] all_data = ((DataTable)files.EventIndex.Tables[0]).Data;
+
+            List<EventIndexDataMain> event_indexes = new List<EventIndexDataMain>();
+
+            int current_param = 0;
+            EventIndexDataMain current_event_index = null;
+
+            for (ushort i = 0; i < all_data.Length; i++)
+            {
+                byte[] data = all_data[i];
+
+                if (current_event_index == null)
+                {
+                    current_event_index = new EventIndexDataMain(data);
+                    current_param = 0;
+                    continue;
+                }
+
+                current_event_index.parameters[current_param++] = data;
+
+                if (current_param == 12)
+                {
+                    event_indexes.Add(current_event_index);
+                    current_event_index = null;
+                }
+            }
+
+            if (current_event_index != null)
+                throw new Exception();
+
+            var tt = event_indexes.GroupBy(g => g.condition).ToArray();
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (int i = 0; i < event_indexes.Count; i++)
+            {
+                EventIndexDataMain event_index = event_indexes[i];
+
+                //stringBuilder.AppendLine($"{}");
+            }
+
+            //OutputFile("event_index.txt", stringBuilder.ToString());
+        }
+
         public void ParseEvents()
         {
             Dictionary<string, EventFile> eventFiles = new Dictionary<string, EventFile>();
@@ -103,6 +150,8 @@ namespace etrian_odyssey_ap_patcher
             LoadFile("Touti");
             LoadFile("Yadoya");
 
+            EtrianString[] item_names = ((MessageTable)files.ItemName.Tables[0]).Messages;
+
             foreach (KeyValuePair<string, EventFile> eventFile in eventFiles)
             {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -113,21 +162,21 @@ namespace etrian_odyssey_ap_patcher
                     stringBuilder.AppendLine($"checkPlace={event_entry.checkPlace}");
                     stringBuilder.AppendLine($"coordX={event_entry.coordX}");
                     stringBuilder.AppendLine($"coordY={event_entry.coordY}");
-                    stringBuilder.AppendLine($"unknown condition 04={event_entry.unknown_condition_04}");
-                    stringBuilder.AppendLine($"unknown condition 05={event_entry.unknown_condition_05}");
+                    stringBuilder.AppendLine($"time start={event_entry.time_start}");
+                    stringBuilder.AppendLine($"time end={event_entry.time_end}");
                     stringBuilder.AppendLine($"direction=0x{event_entry.direction:X2}");
-                    stringBuilder.AppendLine($"unknown condition 07={event_entry.unknown_condition_07}");
+                    stringBuilder.AppendLine($"action={event_entry.action_type}");
                     stringBuilder.AppendLine($"required_flag=0x{event_entry.required_flag.ToString("X3")}");
                     stringBuilder.AppendLine($"not_set_flag=0x{event_entry.not_set_flag.ToString("X3")}");
-                    stringBuilder.AppendLine($"unknown condition 10={event_entry.unknown_condition_10}");
-                    stringBuilder.AppendLine($"unknown condition 11={event_entry.unknown_condition_11}");
-                    stringBuilder.AppendLine($"unknown 12={event_entry.unknown_12}");
+                    stringBuilder.AppendLine($"required temp flag=0x{event_entry.required_temp_flag.ToString("X2")}");
+                    stringBuilder.AppendLine($"not_set_temp_flag=0x{event_entry.not_set_temp_flag.ToString("X2")}");
+                    stringBuilder.AppendLine($"complex_condition_index={event_entry.complex_condition_index}");
                     stringBuilder.AppendLine($"script_offset={event_entry.script_offset}");
                     stringBuilder.AppendLine("script:");
 
                     foreach (EventScriptCommand command in event_entry.script.Commands)
                     {
-                        string parameters = command.GetParametersAsString();
+                        string parameters = command.GetParametersAsString(item_names);
 
                         stringBuilder.AppendLine($"{command.CommandId}: {parameters}");
                     }
@@ -1066,10 +1115,40 @@ foreach (var item in skill2Effects0)
 
             foreach (GovernmentMissionData mission in missions.Values)
             {
-                stringBuilder.AppendLine($"    MissionData(0x{mission.mission_id.ToString("X")}, \"{mission.Name}\", 0x{mission.MissionResultsReportedFlagID.ToString("X2")})");
+                stringBuilder.AppendLine($"    MissionData(0x{mission.mission_id.ToString("X")}, \"{mission.Name}\", 0x{mission.MissionResultsReportedFlagID.ToString("X2")})" +
+                    $"# 0x{mission.unknown_06.ToString("X2")}, 0x{mission.unknown_0E.ToString("X2")}, 0x{mission.unknown_10.ToString("X2")}");
             }
 
             File.WriteAllText("D:\\Projects\\EtrianOdyssey\\DataDump\\mission_data.txt", stringBuilder.ToString());
+        }
+
+        public void QuestData()
+        {
+            byte[][] all_data = ((DataTable)files.BarQuestData.Tables[0]).Data;
+            EtrianString[] quest_names = ((MessageTable)files.BarQuestName.Tables[0]).Messages;
+
+            List<BarQuestData> quests = new List<BarQuestData>();
+            for (ushort i = 0; i < all_data.Length; i++)
+            {
+                byte[] data = all_data[i];
+
+                EtrianString name = quest_names[i];
+
+                quests.Add(new BarQuestData(data, name));
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            EtrianString[] quest_descriptions = ((MessageTable)files.BarQuestMess.Tables[0]).Messages;
+
+            foreach (BarQuestData quest in quests)
+            {
+                stringBuilder.AppendLine($"    QuestData()" +
+                    $" # {quest.quest_id}    {quest.Name.StringValue}                                 {quest_descriptions[quest.quest_id].StringValue.ReplaceLineEndings(" ")}");
+            }
+
+
+            OutputFile("quest_data.txt", stringBuilder.ToString());
         }
 
         private List<TreasureChestTile> GetFloorChests(int floorNumber)

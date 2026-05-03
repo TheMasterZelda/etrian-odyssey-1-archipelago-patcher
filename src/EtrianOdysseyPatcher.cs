@@ -126,6 +126,28 @@ namespace etrian_odyssey_ap_patcher
 
             if (patchData.ShopUnlockMaterialCostDivider.HasValue)
                 ApplyShopUnlockQoLPatch(patchData.ShopUnlockMaterialCostDivider.Value);
+
+            if (patchData.RemoveSkillsRequirements.GetValueOrDefault(false))
+                ApplyRemoveSkillsRequirements();
+        }
+
+        private void ApplyRemoveSkillsRequirements()
+        {
+            List<Class2Skill> class2Skills = new List<Class2Skill>();
+
+            for (int i = 0; i < ((DataTable)files.Class2Skill.Tables[0]).Data.Length; i++)
+            {
+                byte[] entry = ((DataTable)files.Class2Skill.Tables[0]).Data[i];
+
+                var class2skill = new Class2Skill(entry);
+
+                class2skill.RequiredSkillID1 = 0;
+                class2skill.RequiredSkillLevel1 = 0;
+                class2skill.RequiredSkillID2 = 0;
+                class2skill.RequiredSkillLevel2 = 0;
+
+                ((DataTable)files.Class2Skill.Tables[0]).Data[i] = class2skill.Save();
+            }
         }
 
         public void ApplyShopUnlockQoLPatch(int divider)

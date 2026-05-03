@@ -25,12 +25,13 @@ internal class Program
     {
         EtrianOdysseyPatcher patcher = new EtrianOdysseyPatcher(@"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds");
 
-        patcher.ReplaceArm9(File.ReadAllBytes(@"D:\Projects\EtrianOdyssey\Git\etrian-odyssey-1-archipelago-patch\arm9.bin"));
+        //patcher.ReplaceArm9(File.ReadAllBytes(@"D:\Projects\EtrianOdyssey\Git\etrian-odyssey-1-archipelago-patch\arm9.bin"));
+        patcher.ApplyCodePatch();
         patcher.ApplyShopTextPatch();
         patcher.AddShinai();
         patcher.ApplyTreasureBoxTextPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
-        //patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_22080746147398243852\AP_22080746147398243852_P1_TMZ.apeo1", FileMode.Open));
+        patcher.ApplyAPPatch(new FileStream(@"D:\ROMS\Rando\EO1\AP_74010350026877903019_P1_TMZ.apeo1", FileMode.Open));
         patcher.ApplyAPGameTitle();
         patcher.ApplyRestCostReductionPatch();
 
@@ -45,6 +46,7 @@ internal class Program
         extractor.CodexData();
         extractor.ChestData();
         extractor.GovernmentMissions();
+        extractor.QuestData();
         extractor.EquipmentData();
         extractor.ItemData();
         extractor.MaterialData();
@@ -56,6 +58,7 @@ internal class Program
         extractor.ItemCompound();
         extractor.ClassLevelStats();
 
+        extractor.EventIndex();
         extractor.ParseEvents();
     }
 

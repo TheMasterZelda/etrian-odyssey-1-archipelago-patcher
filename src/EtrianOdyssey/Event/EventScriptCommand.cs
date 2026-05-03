@@ -10,14 +10,17 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
             Parameters = parameters;
         }
 
-        public string GetParametersAsString()
+        public string GetParametersAsString(EtrianString[] item_names)
         {
             if (CommandId == EventCommandId.E_COMID_FLAGON ||
                 CommandId == EventCommandId.E_COMID_FLAGOFF ||
                 CommandId == EventCommandId.E_COMID_TMP_FLAG_ON ||
                 CommandId == EventCommandId.E_COMID_TMP_FLAG_OFF)
-                return $"0x{(ushort)Parameters[0]:X4}";
+                return $"0x{(ushort)Parameters[0]:X3}";
 
+            if (CommandId == EventCommandId.E_COMID_EV_GET_ITEM ||
+                CommandId == EventCommandId.E_COMID_EV_LOST_ITEM)
+                return $"{item_names[(ushort)Parameters[0] - 1]} (0x{(ushort)Parameters[0]:X4})";
 
             return string.Join('+', Parameters);
         }

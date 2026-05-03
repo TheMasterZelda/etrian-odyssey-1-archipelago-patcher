@@ -14,27 +14,27 @@
         // 07 = "param 2" condition
         // 08-0B = Required Flag Condition
         // 0C-0F = Event Flag (Not set Condition)
-        // 10 = Condition
+        // 10 = Required Temp Flag (Condition)
         // 11 = Condition
         // 12-13 = Event Index?
         // 14-17 = Script start offset.
         public EventEntry(byte[] blockData)
         {
             event_index = blockData[0x0];
-            locationID = blockData[0x1];
+            locationID = (sbyte)blockData[0x1];
             coordX = (sbyte)blockData[0x2];
             coordY = (sbyte)blockData[0x3];
-            unknown_condition_04 = blockData[0x4];
-            unknown_condition_05 = blockData[0x5];
+            time_start = blockData[0x4];
+            time_end = blockData[0x5];
             direction = blockData[0x6];
-            unknown_condition_07 = blockData[0x7];
+            action = blockData[0x7];
 
             required_flag = BitConverter.ToInt32(blockData, 0x08);
             not_set_flag = BitConverter.ToInt32(blockData, 0x0C);
-            
-            unknown_condition_10 = (sbyte)blockData[0x10];
-            unknown_condition_11 = (sbyte)blockData[0x11];
-            unknown_12 = BitConverter.ToUInt16(blockData, 0x12);
+
+            required_temp_flag = (sbyte)blockData[0x10];
+            not_set_temp_flag = (sbyte)blockData[0x11];
+            complex_condition_index = BitConverter.ToUInt16(blockData, 0x12);
 
             script_offset = BitConverter.ToUInt32(blockData, 0x14);
         }
@@ -45,30 +45,91 @@
         }
 
         public CheckPlace checkPlace => (CheckPlace)locationID;
+        // index in file.
         public byte event_index; // 00
-        public byte locationID; // 01
+        public sbyte locationID; // 01
         public sbyte coordX; // 02
         public sbyte coordY; // 03
-        public byte unknown_condition_04; // 04
-        public byte unknown_condition_05; // 05
+        public byte time_start; // 04
+        public byte time_end; // 05
 
         public EventDirType dirType => (EventDirType)direction;
         public byte direction; // 06
-        public byte unknown_condition_07; // 07
+        public EventActionType action_type => (EventActionType)action; // 07
+        public byte action; // 07
 
         public int required_flag;
         public int not_set_flag;
-        public sbyte unknown_condition_10; // 10
-        public sbyte unknown_condition_11; // 11
+        public sbyte required_temp_flag; // 10
+        public sbyte not_set_temp_flag; // 11
 
-        public ushort unknown_12; // 12-13
+        /*
+        0= majority of events
+        3= used by b11f event for map completion
+        4= used by b12f event for map completion
+        5= used by clear key get event
+        6= used for violet key get event
+        7= used by radha hall event
+        8= used by radha hall event
+        9= used by radha hall event
+        10= used by radha hall event
+        11= used by radha hall event
+        12= used by radha hall event
+
+        100= used by Quest 1
+        119= used by Quest 0
+        131= used by Quest 3
+        132= used by Quest 4
+        133= used by Quest 5
+        156= used by Quest 15
+        167= used by Quest 16
+        108= used by Quest 17
+        109= used by quest 22
+        65280/-1= used by quest 22, 72
+        110= used by quest 23
+        101= used by quest 25
+        126= used by quest 26
+        127= used by quest 27
+        128= used by quest 28
+        168= used by quest 29
+        112= used by quest 33
+        181= used by quest 34
+        113= used by quest 35
+        196= used by quest 36
+        175= used by quest 37
+        176= used by quest 38
+        114= used by quest 39
+        134= used by quest 40
+        135= used by quest 41
+        177= used by quest 42
+        129= used by quest 43
+        178= used by quest 44
+        102= used by quest 50
+        170= used by quest 56
+        103= used by quest 61
+        111= used by quest 62
+        179= used by quest 63
+        104= used by quest 64
+        105= used by quest 66
+        182= used by quest 68
+        183= used by quest 68
+        184= used by quest 68
+        185= used by quest 68
+        186= used by quest 68
+        187= used by quest 68
+        188= used by quest 68
+        106= used by quest 69
+        */
+        // Event Index related.
+        // Complex condition related.
+        public ushort complex_condition_index; // 12-13
 
         public uint script_offset;
 
-		public EventScript script;
+        public EventScript script;
     }
 
-    public enum CheckPlace
+    public enum CheckPlace : sbyte
     {
         E_PLACE_NONE = -1,
         E_DUNGEON_COMMON = 0,
@@ -135,7 +196,7 @@
         E_PLACE_MAX = 61,
     }
 
-    public enum EventDirType
+    public enum EventDirType : byte
     {
         E_EVE_DIR_NONE = 0,
         E_EVE_DIR_EAST = 1,
@@ -145,6 +206,24 @@
         E_EVE_DIR_ALL = 5,
         E_EVE_DIR_MAX = 6,
     }
+
+    public enum EventActionType : byte
+    {
+        NONE = 0,
+        SEARCH = 1,
+        TALK = 2,
+        DOOR = 3,
+        UP = 4,
+        DOWN = 5,
+        MINING = 6,
+        PICK = 7,
+        CUT = 8,
+        RIDE = 9,
+        TREASURE = 10,
+        HAVE_ITEM = 11,
+        FLOOR_CHANGE = 12,
+    }
+
 
 
     /*

@@ -55,6 +55,12 @@ namespace etrian_odyssey_ap_patcher
         private readonly RomFile<TableFile> skill_item_mining_data;
         private readonly RomFile<TableFile> skill_item_pick_data;
 
+        private readonly RomFile<TableFile> bar_quest_data;
+        private readonly RomFile<TableFile> bar_quest_name;
+        private readonly RomFile<TableFile> bar_quest_mess;
+
+        private readonly RomFile<TableFile> event_index;
+
         public EtrianOdysseyFiles(Rom rom)
         {
             this.rom = rom;
@@ -92,6 +98,9 @@ namespace etrian_odyssey_ap_patcher
             //    }
             //}
 
+            //var temp = LoadTableFile(DATA_PARAM + "MapCorrect.tbb");
+            //var temp2 = LoadTableFile(DATA_PARAM + "MapDrawArea.tbb");
+            //var temp3 = LoadTableFile(DATA_PARAM + "FEnemyData.tbb");
 
 
             level_up = LoadTableFile(DATA_PARAM + "LevelUp.tbb");
@@ -112,6 +121,10 @@ namespace etrian_odyssey_ap_patcher
             government_mission_data = LoadTableFile(DATA_PARAM + "GovernmentMissionData.cmp");
             government_mission_name = LoadTableFile(DATA_PARAM + "GovernmentMissionName.cmp");
 
+            bar_quest_data = LoadTableFile(DATA_PARAM + "BarQuestData.cmp");
+            bar_quest_name = LoadTableFile(DATA_PARAM + "BarQuestName.cmp");
+            bar_quest_mess = LoadTableFile(DATA_PARAM + "BarQuestMess.cmp");
+
             player_skill = LoadTableFile(DATA_PARAM + "PlayerSkill.tbb");
             player_skill_name = LoadTableFile(DATA_PARAM + "PlayerSkillName.mbb");
             camp_skill_info = LoadTableFile(DATA_PARAM + "CampSkillInfo.mbb");
@@ -128,6 +141,7 @@ namespace etrian_odyssey_ap_patcher
             skill_item_mining_data = LoadTableFile(DATA_PARAM + "SkillItemMiningData.tbb");
             skill_item_pick_data = LoadTableFile(DATA_PARAM + "SkillItemPickData.tbb");
 
+            event_index = LoadTableFile(DATA_PARAM + "EventIndex.tbb");
 
             //var t = LoadTableFile(DATA_PARAM + "GovernmentMissionMess.cmp");
             //var tt = LoadTableFile(DATA_PARAM + "GovernmentMissionName.cmp");
@@ -148,6 +162,8 @@ namespace etrian_odyssey_ap_patcher
             UpdateFile(item);
             UpdateFile(facility_text);
             UpdateFile(dungeon_mess);
+            UpdateFile(item_compound);
+            UpdateFile(class_2_skill);
 
             foreach (RomFile<MapDataFile> file in map_data_files)
             {
@@ -197,6 +213,9 @@ namespace etrian_odyssey_ap_patcher
         public TableFile EnemyName => enemy_name.base_file;
         public TableFile GovernmentMissionData => government_mission_data.base_file;
         public TableFile GovernmentMissionName => government_mission_name.base_file;
+        public TableFile BarQuestData => bar_quest_data.base_file;
+        public TableFile BarQuestName => bar_quest_name.base_file;
+        public TableFile BarQuestMess => bar_quest_mess.base_file;
         public TableFile Item => item.base_file;
         public TableFile ItemInfo => item_info.base_file;
         public TableFile ItemName => item_name.base_file;
@@ -220,6 +239,7 @@ namespace etrian_odyssey_ap_patcher
         public TableFile SkillItemMiningData => skill_item_mining_data.base_file;
         public TableFile SkillItemPickData => skill_item_pick_data.base_file;
 
+        public TableFile EventIndex => event_index.base_file;
 
     }
 }
