@@ -149,7 +149,7 @@ namespace etrian_odyssey_ap_patcher
                     continue;
                 
                 // Filter materials only.
-                if (item.unknown_0E != 0x14 && item.unknown_0F != 0x15)
+                if (item.unknown_0F != 0x14 && item.unknown_0F != 0x15)
                     continue;
 
                 item.sell_price = (uint)(item.sell_price * effective_mat_sell_value_multiplier);
