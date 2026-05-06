@@ -31,7 +31,8 @@ internal class Program
         patcher.AddShinai();
         patcher.ApplyTreasureBoxTextPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
-        patcher.ApplyAPPatch(new FileStream(@"D:\ROMS\Rando\EO1\AP_74010350026877903019_P1_TMZ.apeo1", FileMode.Open));
+        //patcher.ApplyAPPatch(new FileStream(@"D:\ROMS\Rando\EO1\AP_35217967480385568992_P1_TMZ.apeo1", FileMode.Open));
+        patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\Archipelago\output\AP_35217967480385568992\AP_35217967480385568992_P1_TMZ.apeo1", FileMode.Open));
         patcher.ApplyAPGameTitle();
         patcher.ApplyRestCostReductionPatch();
 
@@ -119,7 +120,6 @@ internal class Program
             patcher.ApplyTreasureBoxTextPatch();
             patcher.ApplyRestCostReductionPatch();
             patcher.AddShinai();
-            // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
             patcher.ApplyAPPatch(new FileStream(openAPPatch.FileName, FileMode.Open));
             patcher.ApplyAPGameTitle();
 

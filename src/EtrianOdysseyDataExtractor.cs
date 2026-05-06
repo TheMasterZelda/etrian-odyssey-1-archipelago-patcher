@@ -1144,7 +1144,7 @@ foreach (var item in skill2Effects0)
             foreach (BarQuestData quest in quests)
             {
                 stringBuilder.AppendLine($"    QuestData()" +
-                    $" # {quest.quest_id}    {quest.Name.StringValue}                                 {quest_descriptions[quest.quest_id].StringValue.ReplaceLineEndings(" ")}");
+                    $" # {quest.quest_id}, {quest.floor_requirement}, {quest.level_requirement}, 0x{quest.flag_requirement.ToString("X2")}    {quest.Name.StringValue}                                 {quest_descriptions[quest.quest_id].StringValue.ReplaceLineEndings(" ")}");
             }
 
 

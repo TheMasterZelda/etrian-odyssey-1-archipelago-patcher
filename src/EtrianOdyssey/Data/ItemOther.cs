@@ -1,9 +1,12 @@
-﻿namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
+﻿using etrian_odyssey_ap_patcher.Util;
+
+namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Data
 {
     public class ItemOther
     {
         public ItemOther(byte[] data, EtrianString[] nameTable)
         {
+            originalData = data;
             item_id = BitConverter.ToUInt16(data, 0);
             name = nameTable[item_id - 1];
             skill_effect_id = BitConverter.ToUInt16(data, 2);
@@ -15,6 +18,17 @@
             unknown_0F = data[0xF];
             buy_price = BitConverter.ToUInt32(data, 0x10);
             sell_price = BitConverter.ToUInt32(data, 0x14);
+        }
+
+        private readonly byte[] originalData;
+
+        public byte[] Save()
+        {
+            byte[] data = (byte[])originalData.Clone();
+
+            ByteUtil.Write(data, 0x14, sell_price);
+
+            return data;
         }
 
         public override string ToString()

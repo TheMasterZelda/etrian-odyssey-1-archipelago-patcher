@@ -129,6 +129,33 @@ namespace etrian_odyssey_ap_patcher
 
             if (patchData.RemoveSkillsRequirements.GetValueOrDefault(false))
                 ApplyRemoveSkillsRequirements();
+
+            int effective_mat_sell_value_multiplier = patchData.MaterialSellValueMultiplier.GetValueOrDefault(1);
+            if (effective_mat_sell_value_multiplier != 1)
+                ApplyMaterialSellValueMultiplier(effective_mat_sell_value_multiplier);
+        }
+
+        private void ApplyMaterialSellValueMultiplier(int effective_mat_sell_value_multiplier)
+        {
+            byte[][] all_data = ((DataTable)files.Item.Tables[1]).Data;
+
+            for (int i = 0; i < all_data.Length; i++)
+            {
+                byte[] entry = all_data[i];
+
+                var item = new ItemOther(entry, ((MessageTable)files.ItemName.Tables[0]).Messages);
+
+                if (item.name.RawData.Length == 1 && item.name.RawData[0] == 0)
+                    continue;
+                
+                // Filter materials only.
+                if (item.unknown_0E != 0x14 && item.unknown_0F != 0x15)
+                    continue;
+
+                item.sell_price = (uint)(item.sell_price * effective_mat_sell_value_multiplier);
+
+                all_data[i] = item.Save();
+            }
         }
 
         private void ApplyRemoveSkillsRequirements()

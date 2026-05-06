@@ -11,6 +11,7 @@
         public string Name { get; set; }
         public bool? RemoveSkillsRequirements { get; set; }
         public int? ShopUnlockMaterialCostDivider { get; set; }
+        public int? MaterialSellValueMultiplier { get; set; }
         public SeedPatchInitialValues InitialValues { get; set; }
         public List<SeedPatchTreasureData> TreasureBoxes { get; set; }
     }
