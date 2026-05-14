@@ -49,7 +49,13 @@ namespace etrian_odyssey_ap_patcher
             if (char.IsDigit(value[0]))
                 value = "N" + value;
 
-            return value.Replace(".", "").Replace('-', '_').Replace(' ', '_').Replace("\'", "").ToUpper();
+            return value.Replace(".", "")
+                .Replace('-', '_')
+                .Replace(' ', '_')
+                .Replace("\'", "")
+                .Replace(',', '_')
+                .Replace(';', '_')
+                .ToUpper();
         }
 
         private Dictionary<ushort, ItemOther> GetMaterials()
@@ -1134,21 +1140,88 @@ foreach (var item in skill2Effects0)
 
                 EtrianString name = quest_names[i];
 
+                if (name.StringValue == "Dummy")
+                    continue;
+
                 quests.Add(new BarQuestData(data, name));
             }
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            EtrianString[] quest_descriptions = ((MessageTable)files.BarQuestMess.Tables[0]).Messages;
+            stringBuilder.AppendLine("class EO1QuestID:");
 
-            foreach (BarQuestData quest in quests)
+            foreach (var quest in quests)
             {
-                stringBuilder.AppendLine($"    QuestData()" +
-                    $" # {quest.quest_id}, {quest.floor_requirement}, {quest.level_requirement}, 0x{quest.flag_requirement.ToString("X2")}    {quest.Name.StringValue}                                 {quest_descriptions[quest.quest_id].StringValue.ReplaceLineEndings(" ")}");
+                string constantName = FormatToConstant(quest.Name.StringValue);
+
+                stringBuilder.AppendLine($"    {constantName} = {quest.quest_id}");
             }
 
+            stringBuilder.AppendLine();
+
+            EtrianString[] quest_descriptions = ((MessageTable)files.BarQuestMess.Tables[0]).Messages;
+
+            Dictionary<ushort, BarQuestData> quest_by_completed_flag = quests.ToDictionary(k => k.completed_flag, v => v);
+
+            int location_id = 4000;
+
+            stringBuilder.AppendLine($"ALL_QUEST_DATA: list[QuestData] = [");
+            foreach (BarQuestData quest in quests)
+            {
+                string constantName = FormatToConstant(quest.Name.StringValue);
+
+                stringBuilder.AppendLine($"    QuestData(EO1QuestID.{constantName}, {location_id++}, \"{quest.Name.StringValue}\", " +
+                    $"{quest.floor_requirement}, {quest.level_requirement}, " +
+                    $"{GetRequiredStratum(quest)}, " +
+                    $"0x{quest.completed_flag.ToString("X3")}{GetExtraRequirements(quest)},"
+                    );
+                    //+
+                    //$" # 0x{quest.flag_requirement.ToString("X3")}, " +
+                    //$"0x{quest.accepted_flag.ToString("X3")}, " +
+                    //$"0x{quest.ready_for_report_flag.ToString("X3")}, " +
+                    //$"0x{quest.completed_flag.ToString("X3")}");
+            }
+            stringBuilder.AppendLine($"]");
 
             OutputFile("quest_data.txt", stringBuilder.ToString());
+
+            string GetExtraRequirements(BarQuestData quest)
+            {
+                if (quest.flag_requirement == -1)
+                    return string.Empty;
+
+                if (quest.flag_requirement > 1024)
+                {
+                    string constantName = FormatToConstant(quest_by_completed_flag[(ushort)quest.flag_requirement].Name.StringValue);
+                    return $", QuestRequirement.QUEST, EO1QuestID.{constantName}";
+                }
+
+                if (quest.quest_id == 87 || quest.quest_id == 89 || quest.quest_id == 91)
+                    return ", QuestRequirement.BEAT_STORY";
+
+                if (quest.quest_id == 3 || quest.quest_id == 86)
+                    return ", QuestRequirement.KEY_ITEM, EO1ItemID.";
+
+                throw new NotImplementedException();
+            }
+
+            int GetRequiredStratum(BarQuestData quest)
+            {
+                if (quest.floor_requirement != -1)
+                    return ((quest.floor_requirement - 1) / 5) + 1;
+
+                if (quest.quest_id == 0)
+                    return 1;
+                if (quest.quest_id == 2)
+                    return 1;
+                if (quest.quest_id == 3)
+                    return 1;
+
+                if (new int[] { 87, 88, 89, 90, 91, 92 }.Contains(quest.quest_id))
+                    return 6;
+
+                throw new NotImplementedException();
+            }
         }
 
         private List<TreasureChestTile> GetFloorChests(int floorNumber)

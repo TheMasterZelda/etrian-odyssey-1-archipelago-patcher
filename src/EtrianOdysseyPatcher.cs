@@ -48,6 +48,11 @@ namespace etrian_odyssey_ap_patcher
             ByteUtil.Write(rom.arm9, address, (byte)(value.Value ? 1 : 0));
         }
 
+        private void PatchRom9Value(int address, byte[] value)
+        {
+            ByteUtil.Write(rom.arm9, address, value);
+        }
+
         public void ApplyAPGameTitle()
         {
             rom.header.GameTitle = "EO1AP V1";
@@ -121,6 +126,7 @@ namespace etrian_odyssey_ap_patcher
 
             SeedPatchData patchData = deserializer.Deserialize<SeedPatchData>(decodedPatch);
 
+            WritePlayerName(patchData.Name);
             ApplyInitialValues(patchData.InitialValues);
             ApplyTreasureBoxPatch(patchData.TreasureBoxes);
 
@@ -133,6 +139,13 @@ namespace etrian_odyssey_ap_patcher
             int effective_mat_sell_value_multiplier = patchData.MaterialSellValueMultiplier.GetValueOrDefault(1);
             if (effective_mat_sell_value_multiplier != 1)
                 ApplyMaterialSellValueMultiplier(effective_mat_sell_value_multiplier);
+        }
+
+        private void WritePlayerName(string name)
+        {
+            byte[] player_name_bytes = Encoding.UTF8.GetBytes(name);
+
+            PatchRom9Value(0xDC600, player_name_bytes);
         }
 
         private void ApplyMaterialSellValueMultiplier(int effective_mat_sell_value_multiplier)
