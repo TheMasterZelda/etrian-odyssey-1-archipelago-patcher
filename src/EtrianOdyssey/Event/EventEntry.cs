@@ -1,4 +1,6 @@
-﻿namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
+﻿using etrian_odyssey_ap_patcher.Util;
+
+namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
 {
     public class EventEntry
     {
@@ -20,6 +22,8 @@
         // 14-17 = Script start offset.
         public EventEntry(byte[] blockData)
         {
+            originalData = blockData;
+
             event_index = blockData[0x0];
             locationID = (sbyte)blockData[0x1];
             coordX = (sbyte)blockData[0x2];
@@ -37,6 +41,19 @@
             complex_condition_index = BitConverter.ToUInt16(blockData, 0x12);
 
             script_offset = BitConverter.ToUInt32(blockData, 0x14);
+        }
+
+        public readonly byte[] originalData;
+
+        public byte[] Save()
+        {
+            byte[] data = (byte[])originalData.Clone();
+
+            data[0x2] = (byte)coordX;
+            data[0x3] = (byte)coordY;
+            ByteUtil.Write(data, 0x14, script_offset);
+
+            return data;
         }
 
         public override string ToString()

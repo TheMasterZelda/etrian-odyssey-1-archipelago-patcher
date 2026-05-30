@@ -9,8 +9,12 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
 
         public ArchiveFile(byte[] fileData, CompressionType compressionType, bool isNestedFile) : base(fileData, compressionType, isNestedFile)
         {
+            ValidateMagicNumber();
         }
-        public ArchiveFile(byte[] fileData) : base(fileData) { }
+        public ArchiveFile(byte[] fileData) : base(fileData) 
+        {
+            ValidateMagicNumber();
+        }
 
         public override string MagicNumber => MAGIC_NUMBER;
         public uint NumBlocks { get; private set; }

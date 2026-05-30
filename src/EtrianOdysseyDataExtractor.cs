@@ -1199,14 +1199,32 @@ foreach (var item in skill2Effects0)
                 if (quest.quest_id == 87 || quest.quest_id == 89 || quest.quest_id == 91)
                     return ", QuestRequirement.BEAT_STORY";
 
-                if (quest.quest_id == 3 || quest.quest_id == 86)
-                    return ", QuestRequirement.KEY_ITEM, EO1ItemID.";
+                if (quest.quest_id == 3)
+                    return ", QuestRequirement.KEY_ITEM, EO1ItemID.RADHA_NOTE";
+                if (quest.quest_id == 86)
+                    return ", QuestRequirement.KEY_ITEM, EO1ItemID.CLEAR_KEY";
 
                 throw new NotImplementedException();
             }
 
             int GetRequiredStratum(BarQuestData quest)
             {
+                switch (quest.quest_id)
+                {
+                    case 12: // Meet a Swordman
+                        return 2;
+                    case 13: // Meet a blademaster
+                        return 3;
+                    case 14: // Meet a holy knight
+                        return 3;
+                    case 31: // Feat of Strength II
+                        return 4;
+                    case 49: // Fond memory of you
+                        return 4;
+                    default:
+                        break;
+                }
+
                 if (quest.floor_requirement != -1)
                     return ((quest.floor_requirement - 1) / 5) + 1;
 
@@ -1368,6 +1386,40 @@ foreach (var item in skill2Effects0)
             }
 
             File.WriteAllText("D:\\Projects\\EtrianOdyssey\\DataDump\\enemy.txt", stringBuilder.ToString());
+        }
+
+        public void EnemyDropData()
+        {
+            byte[][] all_data = ((DataTable)files.EnemyData.Tables[0]).Data;
+            Dictionary<ushort, EnemyData> enemies = new Dictionary<ushort, EnemyData>();
+            for (ushort i = 1; i < all_data.Length; i++)
+            {
+                byte[] data = all_data[i];
+
+                EtrianString name = ((MessageTable)files.EnemyName.Tables[0]).Messages[i - 1];
+
+                EnemyData enemy_data = new EnemyData(data, i, name);
+
+                // Skip dummies.
+                if (enemy_data.codex_id == 0 && enemy_data.enemy_id != 0x7D)
+                    continue;
+
+                enemies.Add(i, enemy_data);
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+
+            foreach (EnemyData enemy in enemies.Values)
+            {
+                string constantName = FormatToConstant(enemy.Name.StringValue);
+
+                stringBuilder.AppendLine($"{enemy.Name}: 0x{enemy.Drop1ItemID.ToString("X000")} - {enemy.Item1Chances}, " +
+                    $"0x{enemy.Drop2ItemID.ToString("X000")} - {enemy.Item2Chances}, 0x{enemy.Drop3ItemID.ToString("X000")} - {enemy.Item3Chances}, " +
+                    $"{enemy.GetDropCondition()}");
+            }
+
+            OutputFile("enemy_drops.txt", stringBuilder.ToString());
         }
 
         public void CodexData()

@@ -19,7 +19,12 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
                 return $"0x{(ushort)Parameters[0]:X3}";
 
             if (CommandId == EventCommandId.E_COMID_EV_GET_ITEM ||
-                CommandId == EventCommandId.E_COMID_EV_LOST_ITEM)
+                CommandId == EventCommandId.E_COMID_EV_LOST_ITEM ||
+                CommandId == EventCommandId.E_COMID_SET_TGT_ITEM_1 ||
+                CommandId == EventCommandId.E_COMID_SET_TGT_ITEM_2 ||
+                CommandId == EventCommandId.E_COMID_SET_TGT_ITEM_3 ||
+                CommandId == EventCommandId.E_COMID_SET_TGT_ITEM_4 ||
+                CommandId == EventCommandId.E_COMID_SET_TGT_ITEM_5)
                 return $"{item_names[(ushort)Parameters[0] - 1]} (0x{(ushort)Parameters[0]:X4})";
 
             return string.Join('+', Parameters);
