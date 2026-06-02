@@ -61,6 +61,11 @@ namespace etrian_odyssey_ap_patcher
 
         private readonly RomFile<TableFile> event_index;
 
+        private RomFile<EventFile> event_dun_07f;
+        private RomFile<EventFile> event_dun_13f;
+        public EventFile EventDun07f => event_dun_07f.base_file;
+        public EventFile EventDun13f => event_dun_13f.base_file;
+
         public EtrianOdysseyFiles(Rom rom)
         {
             this.rom = rom;
@@ -143,6 +148,10 @@ namespace etrian_odyssey_ap_patcher
 
             event_index = LoadTableFile(DATA_PARAM + "EventIndex.tbb");
 
+            quest09 = LoadEventFile(DATA_EVENT + "QUE_009.cmp");
+            event_dun_07f = LoadEventFile(DATA_EVENT + "DUN_07F.cmp");
+            event_dun_13f = LoadEventFile(DATA_EVENT + "DUN_13F.cmp");
+
             //var t = LoadTableFile(DATA_PARAM + "GovernmentMissionMess.cmp");
             //var tt = LoadTableFile(DATA_PARAM + "GovernmentMissionName.cmp");
             //var ttt = LoadTableFile(DATA_PARAM + "GovernmentMissionPrize.cmp");
@@ -164,6 +173,10 @@ namespace etrian_odyssey_ap_patcher
             UpdateFile(dungeon_mess);
             UpdateFile(item_compound);
             UpdateFile(class_2_skill);
+            UpdateFile(bar_quest_mess);
+            UpdateFile(quest09);
+            UpdateFile(event_dun_07f);
+            UpdateFile(event_dun_13f);
 
             foreach (RomFile<MapDataFile> file in map_data_files)
             {
@@ -240,6 +253,72 @@ namespace etrian_odyssey_ap_patcher
         public TableFile SkillItemPickData => skill_item_pick_data.base_file;
 
         public TableFile EventIndex => event_index.base_file;
+
+        public void LoadEventFiles()
+        {
+            quest00 = LoadEventFile(DATA_EVENT + "QUE_000.cmp");
+            quest17 = LoadEventFile(DATA_EVENT + "QUE_017.cmp");
+            quest22 = LoadEventFile(DATA_EVENT + "QUE_022.cmp");
+            quest25 = LoadEventFile(DATA_EVENT + "QUE_025.cmp");
+            quest33 = LoadEventFile(DATA_EVENT + "QUE_033.cmp");
+            quest39 = LoadEventFile(DATA_EVENT + "QUE_039.cmp");
+            quest44 = LoadEventFile(DATA_EVENT + "QUE_044.cmp");
+            quest61 = LoadEventFile(DATA_EVENT + "QUE_061.cmp");
+            quest62 = LoadEventFile(DATA_EVENT + "QUE_062.cmp");
+            quest63 = LoadEventFile(DATA_EVENT + "QUE_063.cmp");
+
+
+
+        }
+
+        public void UpdateEventFiles()
+        {
+            UpdateFile(quest00);
+            UpdateFile(quest17);
+            UpdateFile(quest22);
+            UpdateFile(quest25);
+            UpdateFile(quest33);
+            UpdateFile(quest39);
+            UpdateFile(quest44);
+            UpdateFile(quest61);
+            UpdateFile(quest62);
+            UpdateFile(quest63);
+
+            UpdateFile(event_index);
+        }
+
+        private RomFile<EventFile> LoadEventFile(string filename)
+        {
+            FileEntry entry = GetFile(filename);
+            EventFile file = new EventFile(entry.file_content);
+            return new RomFile<EventFile>(entry, file);
+        }
+
+        private RomFile<EventFile> quest00;
+        private RomFile<EventFile> quest17;
+        private RomFile<EventFile> quest22;
+        private RomFile<EventFile> quest25;
+        private RomFile<EventFile> quest33;
+        private RomFile<EventFile> quest39;
+        private RomFile<EventFile> quest44;
+        private RomFile<EventFile> quest61;
+        private RomFile<EventFile> quest62;
+        private RomFile<EventFile> quest63;
+
+        private RomFile<EventFile> quest09;
+
+        public EventFile Quest00 => quest00.base_file;
+        public EventFile Quest17 => quest17.base_file;
+        public EventFile Quest22 => quest22.base_file;
+        public EventFile Quest25 => quest25.base_file;
+        public EventFile Quest33 => quest33.base_file;
+        public EventFile Quest39 => quest39.base_file;
+        public EventFile Quest44 => quest44.base_file;
+        public EventFile Quest61 => quest61.base_file;
+        public EventFile Quest62 => quest62.base_file;
+        public EventFile Quest63 => quest63.base_file;
+
+        public EventFile Quest09 => quest09.base_file;
 
     }
 }

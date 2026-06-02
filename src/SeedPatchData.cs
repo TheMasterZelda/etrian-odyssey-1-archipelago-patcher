@@ -10,9 +10,11 @@
         public int Slot { get; set; }
         public string Name { get; set; }
         public bool? RemoveSkillsRequirements { get; set; }
+        public bool? MinimizeQuestMaterialGrind { get; set; }
         public int? ShopUnlockMaterialCostDivider { get; set; }
         public int? MaterialSellValueMultiplier { get; set; }
         public SeedPatchInitialValues InitialValues { get; set; }
         public List<SeedPatchTreasureData> TreasureBoxes { get; set; }
+        public List<SeedPatchQuestHintData> QuestHints { get; set; }
     }
 }

@@ -1,9 +1,4 @@
-﻿using etrian_odyssey_ap_patcher.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
 {
@@ -23,6 +18,16 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
             ushort result = (ushort)(data[0] << 0x08 | data[1]);
             position += 2;
             return result;
+        }
+
+        private static byte[] WriteParam(ushort value)
+        {
+            byte[] data = new byte[2];
+
+            data[1] = (byte)(value & 0xFF);
+            data[0] = (byte)(value >> 0x08);
+
+            return data;
         }
 
         private static byte ReadByte(byte[] scripts, ref int position)
@@ -134,6 +139,66 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
             } while (commandId != EventCommandId.E_COMID_EV_START_NUM_TO);
 
             return eventScript;
+        }
+
+        public static byte[] RebuildScript(EventScript script)
+        {
+            Initialize();
+
+            List<byte> result = new List<byte>();
+            foreach (EventScriptCommand command in script.Commands)
+            {
+                result.AddRange(RebuildCommand(command));
+            }
+
+            return result.ToArray();
+        }
+
+        private static byte[] RebuildCommand(EventScriptCommand command)
+        {
+            List<byte> result = new List<byte>();
+            result.AddRange(WriteParam((ushort)command.CommandId));
+
+            ParsingDefinition parsingDefinition = event_parsing_table[command.CommandId];
+
+            switch (parsingDefinition.Style)
+            {
+                case ParsingStyle.STANDARD:
+                    foreach (object parameter in command.Parameters)
+                    {
+                        result.AddRange(WriteParam((ushort)parameter));
+                    }
+                    break;
+                case ParsingStyle.STRING:
+                    if (command.Parameters.Length != 1)
+                        throw new NotImplementedException();
+
+                    string label = (string)command.Parameters[0];
+
+                    result.AddRange(Encoding.ASCII.GetBytes(label));
+                    result.Add(0x00);
+                    break;
+                case ParsingStyle.IF:
+                    result.Add(0x00);
+                    result.Add(0x00);
+
+                    int param_number = (int)command.Parameters[0];
+                    result.AddRange(WriteParam((ushort)(param_number - 1)));
+
+                    for (int i = 1; i < command.Parameters.Length; i++)
+                    {
+                        EventScriptCommandIFParameter ifparam = (EventScriptCommandIFParameter)command.Parameters[i];
+                        result.AddRange(WriteParam(ifparam.parameter1));
+                        result.AddRange(WriteParam(ifparam.parameter2));
+                        result.AddRange(WriteParam(ifparam.parameter3));
+                        result.AddRange(WriteParam(ifparam.parameter4));
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return result.ToArray();
         }
 
         enum ParsingStyle

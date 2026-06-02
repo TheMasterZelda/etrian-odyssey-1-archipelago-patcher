@@ -1,5 +1,7 @@
 ﻿using BsDiff;
+using etrian_odyssey_ap_patcher.EtrianOdyssey;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Data;
+using etrian_odyssey_ap_patcher.EtrianOdyssey.Event;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Files;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.MapData;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
@@ -53,6 +55,7 @@ namespace etrian_odyssey_ap_patcher
             ByteUtil.Write(rom.arm9, address, value);
         }
 
+        // Version
         public void ApplyAPGameTitle()
         {
             rom.header.GameTitle = "EO1AP V1";
@@ -129,6 +132,10 @@ namespace etrian_odyssey_ap_patcher
             WritePlayerName(patchData.Name);
             ApplyInitialValues(patchData.InitialValues);
             ApplyTreasureBoxPatch(patchData.TreasureBoxes);
+            ApplyQuestHintPatch(patchData.QuestHints);
+
+            if (patchData.MinimizeQuestMaterialGrind.GetValueOrDefault(true))
+                ApplyMinimizeQuestMaterialGrindPatch();
 
             if (patchData.ShopUnlockMaterialCostDivider.HasValue)
                 ApplyShopUnlockQoLPatch(patchData.ShopUnlockMaterialCostDivider.Value);
@@ -139,6 +146,28 @@ namespace etrian_odyssey_ap_patcher
             int effective_mat_sell_value_multiplier = patchData.MaterialSellValueMultiplier.GetValueOrDefault(1);
             if (effective_mat_sell_value_multiplier != 1)
                 ApplyMaterialSellValueMultiplier(effective_mat_sell_value_multiplier);
+        }
+
+        private void ApplyQuestHintPatch(List<SeedPatchQuestHintData> questHints)
+        {
+            foreach (SeedPatchQuestHintData quest_hint_data in questHints)
+            {
+                PatchSingularQuestHint(quest_hint_data);
+            }
+
+            void PatchSingularQuestHint(SeedPatchQuestHintData quest_hint_data)
+            {
+                EtrianString[] quest_descriptions = ((MessageTable)files.BarQuestMess.Tables[0]).Messages;
+
+                string vanilla_description = quest_descriptions[quest_hint_data.quest_id].StringValue;
+
+                string[] lines = vanilla_description.Split("\r\n");
+
+                lines[2] = $"Player: {quest_hint_data.item_player_name}";
+                lines[3] = quest_hint_data.item_name.Substring(0, Math.Min(37, quest_hint_data.item_name.Length));
+
+                quest_descriptions[quest_hint_data.quest_id].Update(string.Join("\r\n", lines));
+            }
         }
 
         private void WritePlayerName(string name)
@@ -160,7 +189,7 @@ namespace etrian_odyssey_ap_patcher
 
                 if (item.name.RawData.Length == 1 && item.name.RawData[0] == 0)
                     continue;
-                
+
                 // Filter materials only.
                 if (item.unknown_0F != 0x14 && item.unknown_0F != 0x15)
                     continue;
@@ -315,7 +344,7 @@ namespace etrian_odyssey_ap_patcher
 
 
             dungeonMessage.Messages[457].Update("Found an item from another\r\ndimension.");
-            dungeonMessage.Messages[458].Update("Found an item for this\r\n dimension");
+            dungeonMessage.Messages[458].Update("Found an item for this\r\ndimension");
 
             // For now, don't implement specific messages for each special item types.
             //dungeonMessage.Messages[458].Update("The labyrinth rumbles...\r\n<!806A> floors available!");
@@ -342,6 +371,280 @@ namespace etrian_odyssey_ap_patcher
 
             messages.Messages[114].Update("Reset skill points in exchange\r\nfor losing 1 level.");
             messages.Messages[215].Update("<!8064>       's level has decreased\r\nby 1 while resting.");
+        }
+
+        public void PatchKeysEvents()
+        {
+            // These events will play at their vanilla location in randomizer despite not obtaining the key from there.
+
+            // 4 is missing.
+            EventEntry event_entry = files.EventDun07f.Events[8];
+            // Set impossible coords.
+            event_entry.coordX = 0;
+            event_entry.coordY = 0;
+
+            event_entry = files.EventDun07f.Events[9];
+            // Set impossible coords.
+            event_entry.coordX = 0;
+            event_entry.coordY = 0;
+
+            event_entry = files.EventDun13f.Events[7];
+            // Set impossible coords.
+            event_entry.coordX = 0;
+            event_entry.coordY = 0;
+        }
+
+        public void PatchQuest09()
+        {
+            // EXPLORERS_GUILD_TRIAL
+            EventScript script = files.Quest09.Events[2].script;
+
+            EventScriptCommand command = script.Commands[1];
+
+            if (command.CommandId != EventCommandId.E_COMID_TMP_FLAG_ON)
+                throw new Exception();
+
+            command.CommandId = EventCommandId.E_COMID_FLAGON;
+            command.Parameters[0] = (ushort)0x49C;
+
+            command = new EventScriptCommand(EventCommandId.E_COMID_MES_DUNJON, new object[] { (ushort)6 });
+            script.Commands.Insert(1, command);
+
+            command = new EventScriptCommand(EventCommandId.E_COMID_MES_WIN_CLOSE, new object[] { });
+            script.Commands.Insert(2, command);
+        }
+
+        public void ApplyMinimizeQuestMaterialGrindPatch()
+        {
+            files.LoadEventFiles();
+
+            // THE_LEATHERSMITHS_FAVOR.
+            PatchQuest00();
+
+            // CHEFS_REQUEST_I
+            PatchQuest17();
+
+            // FASHIONISTA_I
+            PatchQuest22();
+
+            // PRAYER_TO_THE_STARS
+            PatchQuest25();
+
+            // CHEFS_REQUEST_II
+            PatchQuest33();
+
+            // UNDER_CONSTRUCTION
+            PatchQuest39();
+
+            // A_SISTERS_PARTING_GIFT
+            PatchQuest44();
+
+            // THE_CRYSTAL_MAIDEN
+            PatchQuest61();
+
+            // EMBLEM_OF_LOVE
+            PatchQuest62();
+
+            // THE_GOLD_ENTHUSIAST
+            PatchQuest63();
+            
+            files.UpdateEventFiles();
+        }
+
+        private void PatchQuest63()
+        {
+            // THE_GOLD_ENTHUSIAST
+            EditScriptMaterialCountParameter(files.Quest63, event_index: 0, command_index: 10);
+            EditScriptMaterialCountParameter(files.Quest63, event_index: 3, command_index: 10);
+            EditScriptRemoveCommandRange(files.Quest63, event_index: 4, start_index: 5, count: 9);
+
+            EditEventIndexData(179, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest62()
+        {
+            // EMBLEM_OF_LOVE
+            EditScriptMaterialCountParameter(files.Quest62, event_index: 0, command_index: 9);
+            EditScriptMaterialCountParameter(files.Quest62, event_index: 3, command_index: 5);
+            EditScriptRemoveCommandRange(files.Quest62, event_index: 4, start_index: 5, count: 2);
+
+            EditEventIndexData(111, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest61()
+        {
+            // THE_CRYSTAL_MAIDEN
+            EditScriptMaterialCountParameter(files.Quest61, event_index: 0, command_index: 9);
+            // Note: This quest has 2 event with index 2.
+            EditScriptMaterialCountParameter(files.Quest61, event_index: 4, command_index: 5);
+            EditScriptRemoveCommandRange(files.Quest61, event_index: 5, start_index: 5, count: 2);
+
+            EditEventIndexData(103, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest44()
+        {
+            // A_SISTERS_PARTING_GIFT
+            EditScriptMaterialCountParameter(files.Quest44, event_index: 0, command_index: 9);
+            EditScriptMaterialCountParameter(files.Quest44, event_index: 3, command_index: 5);
+            EditScriptRemoveCommandRange(files.Quest44, event_index: 4, start_index: 5, count: 9);
+
+            EditEventIndexData(178, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest39()
+        {
+            // UNDER_CONSTRUCTION
+            EditScriptMaterialCountParameter(files.Quest39, event_index: 0, command_index: 10);
+            EditScriptMaterialCountParameterItem2(files.Quest39, event_index: 0, command_index: 10);
+
+            // Note: This quest has 2 event with index 2.
+
+            EditScriptMaterialCountParameter(files.Quest39, event_index: 4, command_index: 6);
+            EditScriptMaterialCountParameterItem2(files.Quest39, event_index: 4, command_index: 6);
+
+            EditScriptRemoveCommandRange(files.Quest39, event_index: 5, start_index: 8, count: 4);
+            EditScriptRemoveCommandRange(files.Quest39, event_index: 5, start_index: 5, count: 2);
+
+            EditEventIndexData(114, x =>
+            {
+                x.parameters[1][0] = 1;
+                x.parameters[3][0] = 1; // To test.
+            });
+        }
+
+        private void PatchQuest33()
+        {
+            // CHEFS_REQUEST_II
+            EditScriptMaterialCountParameter(files.Quest33, event_index: 0, command_index: 9);
+            EditScriptMaterialCountParameter(files.Quest33, event_index: 3, command_index: 6);
+            EditScriptRemoveCommandRange(files.Quest33, event_index: 4, start_index: 5, count: 1);
+
+            EditEventIndexData(112, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest25()
+        {
+            // PRAYER_TO_THE_STARS
+            EditScriptMaterialCountParameter(files.Quest25, event_index: 0, command_index: 9);
+
+            // Note: This quest has 2 event with index 2.
+
+            EditScriptMaterialCountParameter(files.Quest25, event_index: 4, command_index: 5);
+            EditScriptRemoveCommandRange(files.Quest25, event_index: 5, start_index: 3, count: 4);
+
+            EditEventIndexData(101, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest22()
+        {
+            // FASHIONISTA_I
+            EditScriptMaterialCountParameter(files.Quest22, event_index: 0, command_index: 9);
+            // Technically the next event has a bugged event condition.
+            EditScriptMaterialCountParameter(files.Quest22, event_index: 3, command_index: 5);
+            EditScriptRemoveCommandRange(files.Quest22, event_index: 4, start_index: 5, count: 4);
+
+            EditEventIndexData(109, x => x.parameters[1][0] = 1);
+            // todo verify index 65280
+        }
+
+        private void PatchQuest17()
+        {
+            // CHEFS_REQUEST_I
+            EditScriptMaterialCountParameter(files.Quest17, event_index: 0, command_index: 8);
+            EditScriptMaterialCountParameter(files.Quest17, event_index: 3, command_index: 5);
+            EditScriptRemoveCommandRange(files.Quest17, event_index: 4, start_index: 13, count: 2);
+
+            EditEventIndexData(108, x => x.parameters[1][0] = 1);
+        }
+
+        private void PatchQuest00()
+        {
+            // THE_LEATHERSMITHS_FAVOR.
+            EditScriptMaterialCountParameter(files.Quest00, event_index: 0, command_index: 9);
+            EditScriptMaterialCountParameter(files.Quest00, event_index: 3, command_index: 10);
+            EditScriptRemoveCommandRange(files.Quest00, event_index: 4, start_index: 5, count: 6);
+
+            EditEventIndexData(119, x => x.parameters[1][0] = 1);
+        }
+
+        private static void EditScriptMaterialCountParameterItem2(EventFile event_file, int event_index, int command_index)
+        {
+            EventScript script = event_file.Events[event_index].script;
+
+            EventScriptCommandIFParameter ifparam = (EventScriptCommandIFParameter)script.Commands[command_index].Parameters[2];
+
+            if (ifparam.if_target != IfTarget.E_IF_TGT_ITEM_2_NUM)
+                throw new Exception();
+
+            ifparam.parameter3 = 1;
+        }
+
+        private static void EditScriptMaterialCountParameter(EventFile event_file, int event_index, int command_index)
+        {
+            EventScript script = event_file.Events[event_index].script;
+
+            EventScriptCommandIFParameter ifparam = (EventScriptCommandIFParameter)script.Commands[command_index].Parameters[1];
+
+            if (ifparam.if_target != IfTarget.E_IF_TGT_ITEM_1_NUM)
+                throw new Exception();
+
+            ifparam.parameter3 = 1;
+        }
+
+        private static void EditScriptRemoveCommandRange(EventFile event_file, int event_index, int start_index, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (event_file.Events[event_index].script.Commands[start_index].CommandId != EventCommandId.E_COMID_EV_LOST_ITEM)
+                    throw new Exception();
+
+                event_file.Events[event_index].script.Commands.RemoveAt(start_index);
+            }
+        }
+
+        private void EditEventIndexData(int event_index_id, Action<EventIndexDataMain> action)
+        {
+            byte[][] all_data = ((DataTable)files.EventIndex.Tables[0]).Data;
+
+            List<EventIndexDataMain> event_indexes = new List<EventIndexDataMain>();
+
+            int current_param = 0;
+            EventIndexDataMain current_event_index = null;
+            int current_event_start_index = 0;
+
+            for (ushort i = 0; i < all_data.Length; i++)
+            {
+                byte[] data = all_data[i];
+
+                if (current_event_index == null)
+                {
+                    current_event_start_index = i;
+                    current_event_index = new EventIndexDataMain(data);
+                    current_param = 0;
+                    continue;
+                }
+
+                current_event_index.parameters[current_param++] = data;
+
+                if (current_param == 12)
+                {
+                    if (current_event_index.event_index_id == event_index_id)
+                    {
+                        action.Invoke(current_event_index);
+
+                        for (int x = 0; x < 12; x++)
+                        {
+                            all_data[current_event_start_index + x + 1] = current_event_index.parameters[x];
+                        }
+
+                        return;
+                    }
+
+                    event_indexes.Add(current_event_index);
+                    current_event_index = null;
+                }
+            }
         }
 
         public byte[] SavePatchedRom()

@@ -66,9 +66,12 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
 
         public MapDataFile(byte[] fileData, CompressionType compressionType, bool isNestedFile) : base(fileData, compressionType, isNestedFile)
         {
+            ValidateMagicNumber();
         }
-        public MapDataFile(byte[] fileData) : base(fileData) { }
-
+        public MapDataFile(byte[] fileData) : base(fileData) 
+        {
+            ValidateMagicNumber();
+        }
 
         public override string MagicNumber => MAGIC_NUMBER;
 

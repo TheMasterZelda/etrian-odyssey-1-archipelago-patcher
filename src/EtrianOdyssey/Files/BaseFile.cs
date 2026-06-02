@@ -8,7 +8,7 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
         public bool IsNestedFile { get; private set; }
         public MemoryStream DataStream { get; set; }
         public byte[] FileData { get; set; }
-        public abstract string MagicNumber { get; }
+        public virtual string MagicNumber { get; }
 
         public CompressionType CompressionType { get; private set; }
 
@@ -19,16 +19,19 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Files
             CompressionType = compressionType;
             DataStream = new MemoryStream(fileData);
 
-            string magicNumber = Encoding.ASCII.GetString(fileData, 0, 4);
-
-            if (magicNumber != MagicNumber)
-                throw new Exception($"Invalid file signature. Expected {MagicNumber} but was {magicNumber}.");
-
             Parse();
         }
 
         public BaseFile(byte[] fileData) : this(CompressionHelper.DetectCompressionTypeAndDecompressIfRequired(fileData, out var compressionType), compressionType, false)
         {
+        }
+
+        protected void ValidateMagicNumber()
+        {
+            string magicNumber = Encoding.ASCII.GetString(FileData, 0, 4);
+
+            if (magicNumber != MagicNumber)
+                throw new Exception($"Invalid file signature. Expected {MagicNumber} but was {magicNumber}.");
         }
 
         public abstract void Parse();

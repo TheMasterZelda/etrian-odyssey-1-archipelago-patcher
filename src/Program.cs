@@ -32,9 +32,12 @@ internal class Program
         patcher.ApplyTreasureBoxTextPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
         //patcher.ApplyAPPatch(new FileStream(@"D:\ROMS\Rando\EO1\AP_35217967480385568992_P1_TMZ.apeo1", FileMode.Open));
-        patcher.ApplyAPPatch(new FileStream(@"D:\Projects\EtrianOdyssey\Git\Archipelago\output\AP_35217967480385568992\AP_35217967480385568992_P1_TMZ.apeo1", FileMode.Open));
+        string seed = "10467568577561332475";
+        patcher.ApplyAPPatch(new FileStream(@$"D:\Projects\EtrianOdyssey\Git\Archipelago\output\AP_{seed}\AP_{seed}_P1_TMZ.apeo1", FileMode.Open));
         patcher.ApplyAPGameTitle();
         patcher.ApplyRestCostReductionPatch();
+        patcher.PatchQuest09();
+        patcher.PatchKeysEvents();
 
         // "D:\\Code\\TestRepack.nds"
         File.WriteAllBytes("D:\\Code\\TestRepack.nds", patcher.SavePatchedRom());
@@ -44,6 +47,7 @@ internal class Program
     {
         EtrianOdysseyDataExtractor extractor = new EtrianOdysseyDataExtractor(@"D:\Projects\EtrianOdyssey\Ygg_Unpack\Etrian Odyssey (USA).nds", "D:\\Projects\\EtrianOdyssey\\DataDump\\");
         extractor.EnemyData();
+        extractor.EnemyDropData();
         extractor.CodexData();
         extractor.ChestData();
         extractor.GovernmentMissions();
@@ -120,6 +124,8 @@ internal class Program
             patcher.ApplyTreasureBoxTextPatch();
             patcher.ApplyRestCostReductionPatch();
             patcher.AddShinai();
+            patcher.PatchQuest09();
+            patcher.PatchKeysEvents();
             patcher.ApplyAPPatch(new FileStream(openAPPatch.FileName, FileMode.Open));
             patcher.ApplyAPGameTitle();
 
