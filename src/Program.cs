@@ -32,7 +32,8 @@ internal class Program
         patcher.ApplyTreasureBoxTextPatch();
         // @"D:\Projects\EtrianOdyssey\Git\APWorld\Archipelago\output\AP_14360063531218312718\AP_14360063531218312718_P1_TMZ.apeo1"
         //patcher.ApplyAPPatch(new FileStream(@"D:\ROMS\Rando\EO1\AP_35217967480385568992_P1_TMZ.apeo1", FileMode.Open));
-        string seed = "10467568577561332475";
+        //string seed = "10467568577561332475";
+        string seed = "37079856703684552844";
         patcher.ApplyAPPatch(new FileStream(@$"D:\Projects\EtrianOdyssey\Git\Archipelago\output\AP_{seed}\AP_{seed}_P1_TMZ.apeo1", FileMode.Open));
         patcher.ApplyAPGameTitle();
         patcher.ApplyRestCostReductionPatch();
@@ -62,6 +63,7 @@ internal class Program
         extractor.Class2Skill();
         extractor.ItemCompound();
         extractor.ClassLevelStats();
+        extractor.FEnemyData();
 
         extractor.EventIndex();
         extractor.ParseEvents();

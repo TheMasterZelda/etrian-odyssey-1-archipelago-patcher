@@ -59,12 +59,19 @@ namespace etrian_odyssey_ap_patcher
         private readonly RomFile<TableFile> bar_quest_name;
         private readonly RomFile<TableFile> bar_quest_mess;
 
+        private readonly RomFile<TableFile> fenemy;
+
         private readonly RomFile<TableFile> event_index;
 
         private RomFile<EventFile> event_dun_07f;
         private RomFile<EventFile> event_dun_13f;
+        private RomFile<EventFile> event_shop;
+        private RomFile<EventFile> event_mis_000;
+
         public EventFile EventDun07f => event_dun_07f.base_file;
         public EventFile EventDun13f => event_dun_13f.base_file;
+        public EventFile EventShop => event_shop.base_file;
+        public EventFile EventMission0 => event_mis_000.base_file;
 
         public EtrianOdysseyFiles(Rom rom)
         {
@@ -105,7 +112,7 @@ namespace etrian_odyssey_ap_patcher
 
             //var temp = LoadTableFile(DATA_PARAM + "MapCorrect.tbb");
             //var temp2 = LoadTableFile(DATA_PARAM + "MapDrawArea.tbb");
-            //var temp3 = LoadTableFile(DATA_PARAM + "FEnemyData.tbb");
+            fenemy = LoadTableFile(DATA_PARAM + "FEnemyData.tbb");
 
 
             level_up = LoadTableFile(DATA_PARAM + "LevelUp.tbb");
@@ -151,6 +158,8 @@ namespace etrian_odyssey_ap_patcher
             quest09 = LoadEventFile(DATA_EVENT + "QUE_009.cmp");
             event_dun_07f = LoadEventFile(DATA_EVENT + "DUN_07F.cmp");
             event_dun_13f = LoadEventFile(DATA_EVENT + "DUN_13F.cmp");
+            event_shop = LoadEventFile(DATA_EVENT + "Shop.cmp");
+            event_mis_000 = LoadEventFile(DATA_EVENT + "MIS_000.cmp");
 
             //var t = LoadTableFile(DATA_PARAM + "GovernmentMissionMess.cmp");
             //var tt = LoadTableFile(DATA_PARAM + "GovernmentMissionName.cmp");
@@ -177,6 +186,9 @@ namespace etrian_odyssey_ap_patcher
             UpdateFile(quest09);
             UpdateFile(event_dun_07f);
             UpdateFile(event_dun_13f);
+            UpdateFile(event_shop);
+            UpdateFile(event_index);
+            UpdateFile(event_mis_000);
 
             foreach (RomFile<MapDataFile> file in map_data_files)
             {
@@ -252,6 +264,8 @@ namespace etrian_odyssey_ap_patcher
         public TableFile SkillItemMiningData => skill_item_mining_data.base_file;
         public TableFile SkillItemPickData => skill_item_pick_data.base_file;
 
+        public TableFile FEnemy => fenemy.base_file;
+
         public TableFile EventIndex => event_index.base_file;
 
         public void LoadEventFiles()
@@ -283,8 +297,6 @@ namespace etrian_odyssey_ap_patcher
             UpdateFile(quest61);
             UpdateFile(quest62);
             UpdateFile(quest63);
-
-            UpdateFile(event_index);
         }
 
         private RomFile<EventFile> LoadEventFile(string filename)

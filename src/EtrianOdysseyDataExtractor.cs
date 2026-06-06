@@ -6,6 +6,7 @@ using etrian_odyssey_ap_patcher.EtrianOdyssey.MapData;
 using etrian_odyssey_ap_patcher.EtrianOdyssey.Table;
 using etrian_odyssey_ap_patcher.NitroRom;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
@@ -1024,6 +1025,8 @@ foreach (var item in skill2Effects0)
 
             StringBuilder stringBuilder = new StringBuilder();
 
+            int ap_location_id = 5000;
+
             foreach (ItemCompound compound in filteredItemCompounds)
             {
                 string result_item_constant_name = FormatToConstant(compound.name.StringValue);
@@ -1039,7 +1042,8 @@ foreach (var item in skill2Effects0)
                     $"{GetConstantOr0(material_3_item_constant_name)}, " +
                     $"{compound.material_1_count}, " +
                     $"{compound.material_2_count}, " +
-                    $"{compound.material_3_count}),");
+                    $"{compound.material_3_count}, " +
+                    $"{ap_location_id++}),");
             }
 
             OutputFile("item_compound_tbb.txt", stringBuilder.ToString());
@@ -1456,6 +1460,93 @@ foreach (var item in skill2Effects0)
             }
 
             File.WriteAllText("D:\\Projects\\EtrianOdyssey\\DataDump\\codex.txt", stringBuilder.ToString());
+        }
+
+        public void FEnemyData()
+        {
+            byte[][] all_data = ((DataTable)files.EnemyData.Tables[0]).Data;
+            Dictionary<ushort, EnemyData> enemies = new Dictionary<ushort, EnemyData>();
+            MessageTable messageTable = ((MessageTable)files.EnemyName.Tables[0]);
+            for (ushort i = 1; i < all_data.Length; i++)
+            {
+                byte[] data = all_data[i];
+
+                EtrianString name = messageTable.Messages[i - 1];
+
+                EnemyData enemy_data = new EnemyData(data, i, name);
+
+                // Skip dummies.
+                if (enemy_data.codex_id == 0 && enemy_data.enemy_id != 0x7D)
+                    continue;
+
+                enemies.Add(i, enemy_data);
+            }
+
+            all_data = ((DataTable)files.FEnemy.Tables[0]).Data;
+            Dictionary<uint, FEnemyData0> fenemies = new Dictionary<uint, FEnemyData0>();
+            for (uint i = 0; i < all_data.Length; i++)
+            {
+                byte[] data = all_data[i];
+
+                FEnemyData0 fenemy_data = new FEnemyData0(data);
+
+                fenemies.Add(i, fenemy_data);
+            }
+
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (KeyValuePair<uint, FEnemyData0> keyValuePair in fenemies)
+            {
+                //string constantName = FormatToConstant(enemy.Name.StringValue);
+                FEnemyData0 fenemy = keyValuePair.Value;
+
+                string enemy_name;
+                if (enemies.ContainsKey((ushort)fenemy.enemy_id))
+                    enemy_name = enemies[(ushort)fenemy.enemy_id].Name.StringValue;
+                else
+                    enemy_name = $"Unknown {fenemy.enemy_id}";
+
+                stringBuilder.AppendLine($"{keyValuePair.Key} {enemy_name}: {fenemy.coord1}|{fenemy.coord2}|{fenemy.coord3}, " +
+                    $"");
+            }
+
+            OutputFile("all_fenemy.txt", stringBuilder.ToString());
+
+            stringBuilder = new StringBuilder();
+            HashSet<uint> parsed_enemies = new HashSet<uint>();
+            for (int i = 0; i < 31; i++)
+            {
+                stringBuilder.AppendLine($"Floor {i}:");
+
+                all_data = ((DataTable)files.FEnemy.Tables[1 + i]).Data;
+
+                foreach (byte[] entry in all_data)
+                {
+                    uint fenemy_id = BitConverter.ToUInt32(entry, 0);
+
+                    if (!parsed_enemies.Contains(fenemy_id))
+                        parsed_enemies.Add(fenemy_id);
+                    else if (fenemy_id != 0)
+                        throw new Exception();
+
+                    FEnemyData0 fenemy = fenemies[fenemy_id];
+
+                    string enemy_name;
+                    if (enemies.ContainsKey((ushort)fenemy.enemy_id))
+                        enemy_name = enemies[(ushort)fenemy.enemy_id].Name.StringValue;
+                    else
+                        enemy_name = $"Unknown {fenemy.enemy_id}";
+
+                    stringBuilder.AppendLine($"{fenemy_id} {enemy_name}: {fenemy.unknown_04}|{fenemy.coord1}|{fenemy.coord2}|{fenemy.coord3}, ".PadRight(40, ' ') +
+                        $"{fenemy.everything_else}");
+                }
+
+                stringBuilder.AppendLine($"");
+                stringBuilder.AppendLine($"");
+            }
+
+            OutputFile("fenemy_by_floor.txt", stringBuilder.ToString());
         }
     }
 }

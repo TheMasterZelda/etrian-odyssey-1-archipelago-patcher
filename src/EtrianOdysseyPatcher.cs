@@ -146,6 +146,35 @@ namespace etrian_odyssey_ap_patcher
             int effective_mat_sell_value_multiplier = patchData.MaterialSellValueMultiplier.GetValueOrDefault(1);
             if (effective_mat_sell_value_multiplier != 1)
                 ApplyMaterialSellValueMultiplier(effective_mat_sell_value_multiplier);
+
+            if (patchData.RadhaNoteIsShuffed.GetValueOrDefault(false))
+                ApplyRadhaNotePatch();
+        }
+
+        private void ApplyRadhaNotePatch()
+        {
+            EventEntry event_entry = files.EventShop.Events[1];
+            event_entry.complex_condition_index = 22;
+
+            ushort radha_note_item_id = 0x1115;
+
+            EditEventIndexData(22, x =>
+            {
+                x.condition = 1;
+                for (int i = 0; i < 4; i++)
+                {
+                    x.parameters[2][i] = 255;
+                    x.parameters[3][i] = 255;
+                    x.parameters[4][i] = 255;
+                    x.parameters[5][i] = 255;
+                }
+                x.parameters[0][0] = (byte)(radha_note_item_id & 0xFF);
+                x.parameters[0][1] = (byte)((radha_note_item_id & 0xFF00) >> 0x08);
+                x.parameters[1][0] = 1;
+            });
+
+            EventScript script = files.EventMission0.Events[3].script;
+            script.Commands.RemoveAt(3);
         }
 
         private void ApplyQuestHintPatch(List<SeedPatchQuestHintData> questHints)
@@ -447,7 +476,7 @@ namespace etrian_odyssey_ap_patcher
 
             // THE_GOLD_ENTHUSIAST
             PatchQuest63();
-            
+
             files.UpdateEventFiles();
         }
 
@@ -632,6 +661,8 @@ namespace etrian_odyssey_ap_patcher
                     if (current_event_index.event_index_id == event_index_id)
                     {
                         action.Invoke(current_event_index);
+
+                        all_data[current_event_start_index][2] = (byte)current_event_index.condition;
 
                         for (int x = 0; x < 12; x++)
                         {

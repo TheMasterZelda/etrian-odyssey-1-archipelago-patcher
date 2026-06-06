@@ -51,6 +51,7 @@ namespace etrian_odyssey_ap_patcher.EtrianOdyssey.Event
 
             data[0x2] = (byte)coordX;
             data[0x3] = (byte)coordY;
+            ByteUtil.Write(data, 0x12, complex_condition_index);
             ByteUtil.Write(data, 0x14, script_offset);
 
             return data;
