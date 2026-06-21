@@ -426,7 +426,10 @@ namespace etrian_odyssey_ap_patcher
         public void PatchQuest09()
         {
             // EXPLORERS_GUILD_TRIAL
-            EventScript script = files.Quest09.Events[2].script;
+            EventEntry event_entry = files.Quest09.Events[2];
+            event_entry.not_set_flag = 0x49C;
+
+            EventScript script = event_entry.script;
 
             EventScriptCommand command = script.Commands[1];
 
