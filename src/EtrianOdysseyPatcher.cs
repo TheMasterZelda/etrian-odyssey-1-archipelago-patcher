@@ -140,15 +140,41 @@ namespace etrian_odyssey_ap_patcher
             if (patchData.ShopUnlockMaterialCostDivider.HasValue)
                 ApplyShopUnlockQoLPatch(patchData.ShopUnlockMaterialCostDivider.Value);
 
-            if (patchData.RemoveSkillsRequirements.GetValueOrDefault(false))
-                ApplyRemoveSkillsRequirements();
-
             int effective_mat_sell_value_multiplier = patchData.MaterialSellValueMultiplier.GetValueOrDefault(1);
             if (effective_mat_sell_value_multiplier != 1)
                 ApplyMaterialSellValueMultiplier(effective_mat_sell_value_multiplier);
 
             if (patchData.RadhaNoteIsShuffed.GetValueOrDefault(false))
                 ApplyRadhaNotePatch();
+
+            ApplyRandomizedGameData(patchData.RandomizedGameData);
+        }
+
+        private void ApplyRandomizedGameData(SeedPatchRandomizedGameData randomizedGameData)
+        {
+            if (randomizedGameData.skill_requirements != null)
+            {
+                Dictionary<int, SeedPatchSkillRequirement> skill_requirements = randomizedGameData.skill_requirements.ToDictionary(k => k.skill_id);
+
+                if (skill_requirements.Count > 0)
+                {
+                    for (int i = 0; i < ((DataTable)files.Class2Skill.Tables[0]).Data.Length; i++)
+                    {
+                        byte[] entry = ((DataTable)files.Class2Skill.Tables[0]).Data[i];
+
+                        var class2skill = new Class2Skill(entry);
+
+                        SeedPatchSkillRequirement requirements = skill_requirements[class2skill.SkillID];
+
+                        class2skill.RequiredSkillID1 = (ushort)requirements.required_skill_1_id;
+                        class2skill.RequiredSkillLevel1 = (ushort)requirements.required_skill_1_level;
+                        class2skill.RequiredSkillID2 = (ushort)requirements.required_skill_2_id;
+                        class2skill.RequiredSkillLevel2 = (ushort)requirements.required_skill_2_level;
+
+                        ((DataTable)files.Class2Skill.Tables[0]).Data[i] = class2skill.Save();
+                    }
+                }
+            }
         }
 
         private void ApplyRadhaNotePatch()
@@ -226,25 +252,6 @@ namespace etrian_odyssey_ap_patcher
                 item.sell_price = (uint)(item.sell_price * effective_mat_sell_value_multiplier);
 
                 all_data[i] = item.Save();
-            }
-        }
-
-        private void ApplyRemoveSkillsRequirements()
-        {
-            List<Class2Skill> class2Skills = new List<Class2Skill>();
-
-            for (int i = 0; i < ((DataTable)files.Class2Skill.Tables[0]).Data.Length; i++)
-            {
-                byte[] entry = ((DataTable)files.Class2Skill.Tables[0]).Data[i];
-
-                var class2skill = new Class2Skill(entry);
-
-                class2skill.RequiredSkillID1 = 0;
-                class2skill.RequiredSkillLevel1 = 0;
-                class2skill.RequiredSkillID2 = 0;
-                class2skill.RequiredSkillLevel2 = 0;
-
-                ((DataTable)files.Class2Skill.Tables[0]).Data[i] = class2skill.Save();
             }
         }
 
